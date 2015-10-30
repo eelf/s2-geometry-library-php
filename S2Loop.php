@@ -22,14 +22,13 @@
 *
 */
 
-public final strictfp class S2Loop implements S2Region, Comparable
-<S2Loop> {
-private static final Logger log = Logger.getLogger(S2Loop.class.getCanonicalName());
+class S2Loop implements S2Region {
+//private static final Logger log = Logger.getLogger(S2Loop.class.getCanonicalName());
 
 /**
 * Max angle that intersections can be off by and yet still be considered
 * colinear.
-*/
+*#/
 public static final double MAX_INTERSECTION_ERROR = 1e-15;
 
 /**
@@ -37,10 +36,10 @@ public static final double MAX_INTERSECTION_ERROR = 1e-15;
 * contains() can determine whether a point is inside a loop in nearly
 * constant time, whereas without an edge index it is forced to compare the
 * query point against every edge in the loop.
-*/
+*#/
 private S2EdgeIndex index;
 
-/** Maps each S2Point to its order in the loop, from 1 to numVertices. */
+/** Maps each S2Point to its order in the loop, from 1 to numVertices. *#/
 private Map
 <S2Point
 , Integer> vertexToIndex;
@@ -51,7 +50,7 @@ private final int numVertices;
 /**
 * The index (into "vertices") of the vertex that comes first in the total
 * ordering of all vertices in this loop.
-*/
+*#/
 private int firstLogicalVertex;
 
 private S2LatLngRect bound;
@@ -64,7 +63,7 @@ private int depth;
 * must have at least 3 vertices.
 *
 * @param vertices
-*/
+*#/
 public S2Loop(final List
 <S2Point> vertices) {
 this.numVertices = vertices.size();
@@ -87,7 +86,7 @@ initFirstLogicalVertex();
 
 /**
 * Initialize a loop corresponding to the given cell.
-*/
+*#/
 public S2Loop(S2Cell cell) {
 this(cell, cell.getRectBound());
 }
@@ -98,7 +97,7 @@ this(cell, cell.getRectBound());
 *
 * @param cell
 * @param bound
-*/
+*#/
 public S2Loop(S2Cell cell, S2LatLngRect bound) {
 this.bound = bound;
 numVertices = 4;
@@ -115,7 +114,7 @@ initFirstLogicalVertex();
 
 /**
 * Copy constructor.
-*/
+*#/
 public S2Loop(S2Loop src) {
 this.numVertices = src.numVertices();
 this.vertices = src.vertices.clone();
@@ -138,14 +137,14 @@ return depth;
 * used by the S2Polygon implementation.
 *
 * @param depth
-*/
+*#/
 public void setDepth(int depth) {
 this.depth = depth;
 }
 
 /**
 * Return true if this loop represents a hole in its containing polygon.
-*/
+*#/
 public boolean isHole() {
 return (depth & 1) != 0;
 }
@@ -153,7 +152,7 @@ return (depth & 1) != 0;
 /**
 * The sign of a loop is -1 if the loop represents a hole in its containing
 * polygon, and +1 otherwise.
-*/
+*#/
 public int sign() {
 return isHole() ? -1 : 1;
 }
@@ -165,7 +164,7 @@ return numVertices;
 /**
 * For convenience, we make two entire copies of the vertex list available:
 * vertex(n..2*n-1) is mapped to vertex(0..n-1), where n == numVertices().
-*/
+*#/
 public S2Point vertex(int i) {
 try {
 return vertices[i >= vertices.length ? i - vertices.length : i];
@@ -176,7 +175,7 @@ throw new IllegalStateException("Invalid vertex index");
 
 /**
 * Comparator (needed by Comparable interface)
-*/
+*#/
 @Override
 public int compareTo(S2Loop other) {
 if (numVertices() != other.numVertices()) {
@@ -200,7 +199,7 @@ return 0;
 /**
 * Calculates firstLogicalVertex, the vertex in this loop that comes first in
 * a total ordering of all vertices (by way of S2Point's compareTo function).
-*/
+*#/
 private void initFirstLogicalVertex() {
 int first = 0;
 for (int i = 1; i < numVertices; ++i) {
@@ -213,7 +212,7 @@ firstLogicalVertex = first;
 
 /**
 * Return true if the loop area is at most 2*Pi.
-*/
+*#/
 public boolean isNormalized() {
 // We allow a bit of error so that exact hemispheres are
 // considered normalized.
@@ -223,7 +222,7 @@ return getArea() <= 2 * S2.M_PI + 1e-14;
 /**
 * Invert the loop if necessary so that the area enclosed by the loop is at
 * most 2*Pi.
-*/
+*#/
 public void normalize() {
 if (!isNormalized()) {
 invert();
@@ -233,7 +232,7 @@ invert();
 /**
 * Reverse the order of the loop vertices, effectively complementing the
 * region represented by the loop.
-*/
+*#/
 public void invert() {
 int last = numVertices() - 1;
 for (int i = (last - 1) / 2; i >= 0; --i) {
@@ -255,7 +254,7 @@ initFirstLogicalVertex();
 
 /**
 * Helper method to get area and optionally centroid.
-*/
+*#/
 private S2AreaCentroid getAreaCentroid(boolean doCentroid) {
 S2Point centroid = null;
 // Don't crash even if loop is not well-defined.
@@ -324,7 +323,7 @@ return new S2AreaCentroid(areaSum, centroid);
 * the loop. The return value is between 0 and 4*Pi and the true centroid of
 * the loop multiplied by the area of the loop (see S2.java for details on
 * centroids). Note that the centroid may not be contained by the loop.
-*/
+*#/
 public S2AreaCentroid getAreaAndCentroid() {
 return getAreaCentroid(true);
 }
@@ -332,7 +331,7 @@ return getAreaCentroid(true);
 /**
 * Return the area of the polygon interior, i.e. the region on the left side
 * of an odd number of loops. The return value is between 0 and 4*Pi.
-*/
+*#/
 public double getArea() {
 return getAreaCentroid(false).getArea();
 }
@@ -341,7 +340,7 @@ return getAreaCentroid(false).getArea();
 * Return the true centroid of the polygon multiplied by the area of the
 * polygon (see {@link S2} for details on centroids). Note that the centroid
 * may not be contained by the polygon.
-*/
+*#/
 public S2Point getCentroid() {
 return getAreaCentroid(true).getCentroid();
 }
@@ -362,7 +361,7 @@ return getAreaCentroid(true).getCentroid();
 /**
 * Return true if the region contained by this loop is a superset of the
 * region contained by the given other loop.
-*/
+*#/
 public boolean contains(S2Loop b) {
 // For this loop A to contains the given loop B, all of the following must
 // be true:
@@ -412,7 +411,7 @@ return true;
 /**
 * Return true if the region contained by this loop intersects the region
 * contained by the given other loop.
-*/
+*#/
 public boolean intersects(S2Loop b) {
 // a->Intersects(b) if and only if !a->Complement()->Contains(b).
 // This code is similar to Contains(), but is optimized for the case
@@ -461,7 +460,7 @@ return false;
 * Given two loops of a polygon, return true if A contains B. This version of
 * contains() is much cheaper since it does not need to check whether the
 * boundaries of the two loops cross.
-*/
+*#/
 public boolean containsNested(S2Loop b) {
 if (!bound.contains(b.getRectBound())) {
 return false;
@@ -486,7 +485,7 @@ vertex(m - 1), vertex(m), vertex(m + 1), b.vertex(0), b.vertex(2)) > 0;
 * Requires that A does not properly contain the complement of B, i.e. A and B
 * do not contain each other's boundaries. This method is used for testing
 * whether multi-loop polygons contain each other.
-*/
+*#/
 public int containsOrCrosses(S2Loop b) {
 // There can be containment or crossing only if the bounds intersect.
 if (!bound.intersects(b.getRectBound())) {
@@ -528,7 +527,7 @@ return 1;
 * same cyclic order, and corresponding vertex pairs must be separated by no
 * more than maxError. Note: This method mostly useful only for testing
 * purposes.
-*/
+*#/
 boolean boundaryApproxEquals(S2Loop b, double maxError) {
 if (numVertices() != b.numVertices()) {
 return false;
@@ -546,14 +545,14 @@ return true;
 
 // S2Region interface (see {@code S2Region} for details):
 
-/** Return a bounding spherical cap. */
+/** Return a bounding spherical cap. *#/
 @Override
 public S2Cap getCapBound() {
 return bound.getCapBound();
 }
 
 
-/** Return a bounding latitude-longitude rectangle. */
+/** Return a bounding latitude-longitude rectangle. *#/
 @Override
 public S2LatLngRect getRectBound() {
 return bound;
@@ -563,7 +562,7 @@ return bound;
 * If this method returns true, the region completely contains the given cell.
 * Otherwise, either the region does not contain the cell or the containment
 * relationship could not be determined.
-*/
+*#/
 @Override
 public boolean contains(S2Cell cell) {
 // It is faster to construct a bounding rectangle for an S2Cell than for
@@ -582,7 +581,7 @@ return contains(cellLoop);
 * If this method returns false, the region does not intersect the given cell.
 * Otherwise, either region intersects the cell, or the intersection
 * relationship could not be determined.
-*/
+*#/
 @Override
 public boolean mayIntersect(S2Cell cell) {
 // It is faster to construct a bounding rectangle for an S2Cell than for
@@ -598,7 +597,7 @@ return new S2Loop(cell, cellBound).intersects(this);
 
 /**
 * The point 'p' does not need to be normalized.
-*/
+*#/
 public boolean contains(S2Point p) {
 if (!bound.contains(p)) {
 return false;
@@ -635,7 +634,7 @@ return inside;
 * Returns the shortest distance from a point P to this loop, given as the
 * angle formed between P, the origin and the nearest point on the loop to P.
 * This angle in radians is equivalent to the arclength along the unit sphere.
-*/
+*#/
 public S1Angle getDistance(S2Point p) {
 S2Point normalized = S2Point.normalize(p);
 
@@ -655,7 +654,7 @@ return minDistance;
 * force lookups are likely to be slower than really creating an index, and if
 * so, we do so. Finally an iterator is returned that can be used to perform
 * edge lookups.
-*/
+*#/
 private final DataEdgeIterator getEdgeIterator(int expectedQueries) {
 if (index == null) {
 index = new S2EdgeIndex() {
@@ -679,7 +678,7 @@ index.predictAdditionalCalls(expectedQueries);
 return new S2EdgeIndex.DataEdgeIterator(index);
 }
 
-/** Return true if this loop is valid. */
+/** Return true if this loop is valid. *#/
 public boolean isValid() {
 if (numVertices < 3) {
 log.info("Degenerate loop");
@@ -772,7 +771,7 @@ return true;
 *
 * @return true if the given loop is valid. Creates an instance of S2Loop and
 * defers this call to {@link #isValid()}.
-*/
+*#/
 public static boolean isValid(List
 <S2Point> vertices) {
     return new S2Loop(vertices).isValid();
@@ -848,7 +847,7 @@ public static boolean isValid(List
     /**
     * Return the index of a vertex at point "p", or -1 if not found. The return
     * value is in the range 1..num_vertices_ if found.
-    */
+    *#/
     private int findVertex(S2Point p) {
     if (vertexToIndex == null) {
     vertexToIndex = new HashMap
@@ -877,7 +876,7 @@ public static boolean isValid(List
     * returns the minimum value of the given WedgeRelation for all such vertices
     * (returning immediately if any wedge returns -1). Returns +1 if there are no
     * intersections and no shared vertices.
-    */
+    *#/
     private int checkEdgeCrossings(S2Loop b, S2EdgeUtil.WedgeRelation relation) {
     DataEdgeIterator it = getEdgeIterator(b.numVertices);
     int result = 1;
@@ -911,4 +910,5 @@ public static boolean isValid(List
     }
     return result;
     }
-    }
+*/
+}

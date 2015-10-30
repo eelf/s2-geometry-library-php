@@ -370,7 +370,7 @@ class S2CellId {
      * indexing. Cells at lower levels (i.e. larger cells) are encoded into
      * fewer characters. The maximum token length is 16.
      *
-     * @param token the token to decode
+     * @param string $token the token to decode
      * @return S2CellId for that token
      * @throws NumberFormatException if the token is not formatted correctly
      */

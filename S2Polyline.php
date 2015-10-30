@@ -11,17 +11,19 @@
 * vertices.
 *
 */
-public final strictfp class S2Polyline implements S2Region {
-private static final Logger log = Logger.getLogger(S2Polyline.class.getCanonicalName());
+class S2Polyline implements S2Region {
+//private static final Logger log = Logger.getLogger(S2Polyline.class.getCanonicalName());
 
-private final int numVertices;
-private final S2Point[] vertices;
+//private final int numVertices;
+private $numVertices;
+//private final S2Point[] vertices;
+private $vertices;
 
 /**
 * Create a polyline that connects the given vertices. Empty polylines are
 * allowed. Adjacent vertices should not be identical or antipodal. All
 * vertices should be unit length.
-*/
+*#/
 public S2Polyline(List
 <S2Point> vertices) {
 // assert isValid(vertices);
@@ -33,7 +35,7 @@ this.vertices = vertices.toArray(new S2Point[numVertices]);
 * Copy constructor.
 *
 * TODO(dbeaumont): Now that S2Polyline is immutable, remove this.
-*/
+*#/
 public S2Polyline(S2Polyline src) {
 this.numVertices = src.numVertices();
 this.vertices = src.vertices.clone();
@@ -41,7 +43,7 @@ this.vertices = src.vertices.clone();
 
 /**
 * Return true if the given vertices form a valid polyline.
-*/
+*#/
 public boolean isValid(List
 <S2Point> vertices) {
 // All vertices must be unit length.
@@ -77,7 +79,7 @@ return vertices[k];
 /**
 * Return the angle corresponding to the total arclength of the polyline on a
 * unit sphere.
-*/
+*#/
 public S1Angle getArclengthAngle() {
 double lengthSum = 0;
 for (int i = 1; i < numVertices(); ++i) {
@@ -91,7 +93,7 @@ return S1Angle.radians(lengthSum);
 * given fraction of the polyline's total length. Fractions less than zero or
 * greater than one are clamped. The return value is unit length. This cost of
 * this function is currently linear in the number of vertices.
-*/
+*#/
 public S2Point interpolate(double fraction) {
 // We intentionally let the (fraction >= 1) case fall through, since
 // we need to handle it in the loop below in any case because of
@@ -121,14 +123,14 @@ return vertex(numVertices() - 1);
 
 // S2Region interface (see {@code S2Region} for details):
 
-/** Return a bounding spherical cap. */
+/** Return a bounding spherical cap. *#/
 @Override
 public S2Cap getCapBound() {
 return getRectBound().getCapBound();
 }
 
 
-/** Return a bounding latitude-longitude rectangle. */
+/** Return a bounding latitude-longitude rectangle. *#/
 @Override
 public S2LatLngRect getRectBound() {
 S2EdgeUtil.RectBounder bounder = new S2EdgeUtil.RectBounder();
@@ -142,7 +144,7 @@ return bounder.getBound();
 * If this method returns true, the region completely contains the given cell.
 * Otherwise, either the region does not contain the cell or the containment
 * relationship could not be determined.
-*/
+*#/
 @Override
 public boolean contains(S2Cell cell) {
 throw new UnsupportedOperationException(
@@ -153,7 +155,7 @@ throw new UnsupportedOperationException(
 * If this method returns false, the region does not intersect the given cell.
 * Otherwise, either region intersects the cell, or the intersection
 * relationship could not be determined.
-*/
+*#/
 @Override
 public boolean mayIntersect(S2Cell cell) {
 if (numVertices() == 0) {
@@ -189,7 +191,7 @@ return false;
 * Given a point, returns the index of the start point of the (first) edge on
 * the polyline that is closest to the given point. The polyline must have at
 * least one vertex. Throws IllegalStateException if this is not the case.
-*/
+*#/
 public int getNearestEdgeIndex(S2Point point) {
 Preconditions.checkState(numVertices() > 0, "Empty polyline");
 
@@ -216,7 +218,7 @@ return minIndex;
 /**
 * Given a point p and the index of the start point of an edge of this polyline,
 * returns the point on that edge that is closest to p.
-*/
+*#/
 public S2Point projectToEdge(S2Point point, int index) {
 Preconditions.checkState(numVertices() > 0, "Empty polyline");
 Preconditions.checkState(numVertices() == 1 || index < numVertices() - 1, "Invalid edge index");
@@ -250,4 +252,5 @@ return true;
 public int hashCode() {
 return Objects.hashCode(numVertices, Arrays.deepHashCode(vertices));
 }
+*/
 }

@@ -18,13 +18,13 @@ class S2EdgeUtil {
 * needs to be increased by a factor of (1/0.866) to account for the
 * edgeSpliceFraction() in S2PolygonBuilder. Note that the maximum error
 * measured by the unittest in 1,000,000 trials is less than 3e-16.
-*/
+*#/
 public static final S1Angle DEFAULT_INTERSECTION_TOLERANCE = S1Angle.radians(1.5e-15);
 
 /**
 * This class allows a vertex chain v0, v1, v2, ... to be efficiently tested
 * for intersection with a given fixed edge AB.
-*/
+*#/
 public static class EdgeCrosser {
 // The fields below are all constant.
 
@@ -43,7 +43,7 @@ private int acb;
 * AB is the given fixed edge, and C is the first vertex of the vertex
 * chain. All parameters must point to fixed storage that persists for the
 * lifetime of the EdgeCrosser object.
-*/
+*#/
 public EdgeCrosser(S2Point a, S2Point b, S2Point c) {
 this.a = a;
 this.b = b;
@@ -53,7 +53,7 @@ restartAt(c);
 
 /**
 * Call this function when your chain 'jumps' to a new place.
-*/
+*#/
 public void restartAt(S2Point c) {
 this.c = c;
 acb = -S2.robustCCW(a, b, c, aCrossB);
@@ -66,7 +66,7 @@ acb = -S2.robustCCW(a, b, c, aCrossB);
 * different edges are the same. Returns 0 or -1 if either edge is
 * degenerate. As a side effect, it saves vertex D to be used as the next
 * vertex C.
-*/
+*#/
 public int robustCrossing(S2Point d) {
 // For there to be an edge crossing, the triangles ACB, CBD, BDA, DAC must
 // all be oriented the same way (CW or CCW). We keep the orientation
@@ -103,7 +103,7 @@ return result;
 * defined below. It is similar to robustCrossing, but handles cases where
 * two vertices are identical in a way that makes it easy to implement
 * point-in-polygon containment tests.
-*/
+*#/
 public boolean edgeOrVertexCrossing(S2Point d) {
 // We need to copy c since it is clobbered by robustCrossing().
 S2Point c2 = new S2Point(c.get(0), c.get(1), c.get(2));
@@ -121,7 +121,7 @@ return vertexCrossing(a, b, c2, d);
 
 /**
 * This function handles the "slow path" of robustCrossing().
-*/
+*#/
 private int robustCrossingInternal(S2Point d) {
 // ACB and BDA have the appropriate orientations, so now we check the
 // triangles CBD and DAC.
@@ -141,7 +141,7 @@ return (dac == acb) ? 1 : -1;
 * a vertex chain v0, v1, v2, ... All vertices must be unit length. Note that
 * the bounding rectangle of an edge can be larger than the bounding rectangle
 * of its endpoints, e.g. consider an edge that passes through the north pole.
-*/
+*#/
 public static class RectBounder {
 // The previous vertex in the chain.
 private S2Point a;
@@ -159,7 +159,7 @@ this.bound = S2LatLngRect.empty();
 /**
 * This method is called to add each vertex to the chain. 'b' must point to
 * fixed storage that persists for the lifetime of the RectBounder.
-*/
+*#/
 public void addPoint(S2Point b) {
 // assert (S2.isUnitLength(b));
 
@@ -203,7 +203,7 @@ aLatLng = bLatLng;
 /**
 * Return the bounding rectangle of the edge chain that connects the
 * vertices defined so far.
-*/
+*#/
 public S2LatLngRect getBound() {
 return bound;
 }
@@ -220,7 +220,7 @@ return bound;
 * We use XYZ intervals instead of something like longitude intervals because
 * it is cheap to collect from S2Point lists and any slicing strategy should
 * give essentially equivalent results.  See S2Loop for an example of use.
-*/
+*#/
 public static class XYZPruner {
 private S2Point lastVertex;
 
@@ -243,7 +243,7 @@ boundSet = false;
 *
 * @param from start of edge
 * @param to end of edge.
-*/
+*#/
 public void addEdgeToBounds(S2Point from, S2Point to) {
 if (!boundSet) {
 boundSet = true;
@@ -291,7 +291,7 @@ this.lastVertex = v0;
 * through the pruner bounding box, otherwise returns false.  So the
 * method returns false if we are certain there is no intersection, but it
 * may return true when there turns out to be no intersection.
-*/
+*#/
 public boolean intersects(S2Point v1) {
 boolean result = true;
 
@@ -318,7 +318,7 @@ return result;
 * This class is not currently used as the XYZPruner is preferred for
 * S2Loop, but this should be usable in similar circumstances.  Be wary
 * of the cost of atan2() in conversions from S2Point to longitude!
-*/
+*#/
 public static class LongitudePruner {
 // The interval to be tested against.
 private S1Interval interval;
@@ -329,7 +329,7 @@ private double lng0;
 /**
 *'interval' is the longitude interval to be tested against, and 'v0' is
 * the first vertex of edge chain.
-*/
+*#/
 public LongitudePruner(S1Interval interval, S2Point v0) {
 this.interval = interval;
 this.lng0 = S2LatLng.longitude(v0).radians();
@@ -338,7 +338,7 @@ this.lng0 = S2LatLng.longitude(v0).radians();
 /**
 * Returns true if the edge (v0, v1) intersects the given longitude
 * interval, and then saves 'v1' to be used as the next 'v0'.
-*/
+*#/
 public boolean intersects(S2Point v1) {
 double lng1 = S2LatLng.longitude(v1).radians();
 boolean result = interval.intersects(S1Interval.fromPointPair(lng0, lng1));
@@ -357,7 +357,7 @@ return result;
 *  All wedge relations require that a0 != a2 and b0 != b2. Other degenerate
 * cases (such as a0 == b2) are handled as expected. The parameter "ab1"
 * denotes the common vertex a1 == b1.
-*/
+*#/
 public interface WedgeRelation {
 int test(S2Point a0, S2Point ab1, S2Point a2, S2Point b0, S2Point b2);
 }
@@ -367,7 +367,7 @@ public static class WedgeContains implements WedgeRelation {
 * Given two edge chains (see WedgeRelation above), this function returns +1
 * if the region to the left of A contains the region to the left of B, and
 * 0 otherwise.
-*/
+*#/
 @Override
 public int test(S2Point a0, S2Point ab1, S2Point a2, S2Point b0, S2Point b2) {
 // For A to contain B (where each loop interior is defined to be its left
@@ -385,7 +385,7 @@ public static class WedgeIntersects implements WedgeRelation {
 * boundary are contained by one side or the other, not both. So for
 * example, if A,B,C are distinct points ordered CCW around a vertex O, then
 * the wedges BOA, AOC, and COB do not intersect.
-*/
+*#/
 @Override
 public int test(S2Point a0, S2Point ab1, S2Point a2, S2Point b0, S2Point b2) {
 // For A not to intersect B (where each loop interior is defined to be
@@ -402,7 +402,7 @@ public static class WedgeContainsOrIntersects implements WedgeRelation {
 * Given two edge chains (see WedgeRelation above), this function returns +1
 * if A contains B, 0 if A and B are disjoint, and -1 if A intersects but
 * does not contain B.
-*/
+*#/
 @Override
 public int test(S2Point a0, S2Point ab1, S2Point a2, S2Point b0, S2Point b2) {
 // This is similar to WedgeContainsOrCrosses, except that we want to
@@ -432,7 +432,7 @@ public static class WedgeContainsOrCrosses implements WedgeRelation {
 * degenerate cases where more than one of these conditions is satisfied,
 * the maximum possible result is returned. For example, if A == B then the
 * result is +1.
-*/
+*#/
 @Override
 public int test(S2Point a0, S2Point ab1, S2Point a2, S2Point b0, S2Point b2) {
 // There are 6 possible edge orderings at a shared vertex (all
@@ -477,7 +477,7 @@ return S2.orderedCCW(a0, b0, a2, ab1) ? 0 : -1; // Case 2,3 vs. 4.
 *
 *  (1) simpleCrossing(b,a,c,d) == simpleCrossing(a,b,c,d) (2)
 * simpleCrossing(c,d,a,b) == simpleCrossing(a,b,c,d)
-*/
+*#/
 public static boolean simpleCrossing(S2Point a, S2Point b, S2Point c, S2Point d) {
 // We compute simpleCCW() for triangles ACB, CBD, BDA, and DAC. All
 // of these triangles need to have the same orientation (CW or CCW)
@@ -514,7 +514,7 @@ return (acb * cbd > 0) && (acb * dac > 0);
 *
 *  Note that if you want to check an edge against a *chain* of other edges,
 * it is much more efficient to use an EdgeCrosser (above).
-*/
+*#/
 public static int robustCrossing(S2Point a, S2Point b, S2Point c, S2Point d) {
 // For there to be a crossing, the triangles ACB, CBD, BDA, DAC must
 // all have the same orientation (clockwise or counterclockwise).
@@ -574,7 +574,7 @@ return (dac == acb) ? 1 : -1;
 * VC(c,d,a,b) is true
 *
 * It is an error to call this method with 4 distinct vertices.
-*/
+*#/
 public static boolean vertexCrossing(S2Point a, S2Point b, S2Point c, S2Point d) {
 // If A == B or C == D there is no intersection. We need to check this
 // case first in case 3 or more input points are identical.
@@ -608,7 +608,7 @@ return false;
 * two or more vertices are the same. This defines a crossing function such
 * that point-in-polygon containment tests can be implemented by simply
 * counting edge crossings.
-*/
+*#/
 public static boolean edgeOrVertexCrossing(S2Point a, S2Point b, S2Point c, S2Point d) {
 int crossing = robustCrossing(a, b, c, d);
 if (crossing < 0) {
@@ -659,7 +659,7 @@ vmin = y;
 * and CD, but if the edges intersect at a very small angle then X may not be
 * close to the true mathematical intersection point P. See the description of
 * "DEFAULT_INTERSECTION_TOLERANCE" below for details.
-*/
+*#/
 public static S2Point getIntersection(S2Point a0, S2Point a1, S2Point b0, S2Point b1) {
 Preconditions.checkArgument(robustCrossing(a0, a1, b0, b1) > 0,
 "Input edges a0a1 and b0b1 muct have a true robustCrossing.");
@@ -714,7 +714,7 @@ return r.getVmin();
 * Given a point X and an edge AB, return the distance ratio AX / (AX + BX).
 * If X happens to be on the line segment AB, this is the fraction "t" such
 * that X == Interpolate(A, B, t). Requires that A and B are distinct.
-*/
+*#/
 public static double getDistanceFraction(S2Point x, S2Point a0, S2Point a1) {
 Preconditions.checkArgument(!a0.equals(a1));
 double d0 = x.angle(a0);
@@ -728,7 +728,7 @@ return d0 / (d0 + d1);
 * the distance is large (approximately Pi/2 or greater). The case A == B is
 * handled correctly. Note: x, a and b must be of unit length. Throws
 * IllegalArgumentException if this is not the case.
-*/
+*#/
 public static S1Angle getDistance(S2Point x, S2Point a, S2Point b) {
 return getDistance(x, a, b, S2.robustCrossProd(a, b));
 }
@@ -738,7 +738,7 @@ return getDistance(x, a, b, S2.robustCrossProd(a, b));
 * of the two endpoints has been precomputed. The cross product does not need
 * to be normalized, but should be computed using S2.robustCrossProd() for the
 * most accurate results.
-*/
+*#/
 public static S1Angle getDistance(S2Point x, S2Point a, S2Point b, S2Point aCrossB) {
 Preconditions.checkArgument(S2.isUnitLength(x));
 Preconditions.checkArgument(S2.isUnitLength(a));
@@ -772,7 +772,7 @@ return S1Angle.radians(2 * Math.asin(Math.min(1.0, 0.5 * Math.sqrt(linearDist2))
 * Returns the point on edge AB closest to X. x, a and b must be of unit
 * length. Throws IllegalArgumentException if this is not the case.
 *
-*/
+*#/
 public static S2Point getClosestPoint(S2Point x, S2Point a, S2Point b) {
 Preconditions.checkArgument(S2.isUnitLength(x));
 Preconditions.checkArgument(S2.isUnitLength(a));
@@ -790,7 +790,8 @@ return S2Point.normalize(p);
 return S2Point.minus(x, a).norm2() <= S2Point.minus(x, b).norm2() ? a : b;
 }
 
-/** Constructor is private so that this class is never instantiated. */
+/** Constructor is private so that this class is never instantiated. *#/
 private S2EdgeUtil() {
 }
+*/
 }

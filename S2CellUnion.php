@@ -573,8 +573,7 @@ class S2CellUnion {
                 $idMasked = ($id->id() & $mask);
                 if (($output[$size - 3]->id() & $mask) != $idMasked
                     || ($output[$size - 2]->id() & $mask) != $idMasked
-                    || ($output[$size - 1]->id() & $mask) != $idMasked || $id->isFace()
-                ) {
+                    || ($output[$size - 1]->id() & $mask) != $idMasked || $id->isFace()) {
                     break;
                 }
 

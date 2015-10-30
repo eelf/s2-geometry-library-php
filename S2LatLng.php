@@ -42,8 +42,10 @@ class S2LatLng {
         // We use atan2 rather than asin because the input vector is not necessarily
         // unit length, and atan2 is much more accurate than asin near the poles.
         return S1Angle::sradians(
-            atan2($p->get(2),
-            sqrt($p->get(0) * $p->get(0) + $p->get(1) * $p->get(1)))
+            atan2(
+                $p->get(2),
+                sqrt($p->get(0) * $p->get(0) + $p->get(1) * $p->get(1))
+            )
         );
     }
 

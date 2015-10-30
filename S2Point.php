@@ -33,7 +33,10 @@ class S2Point {
 
     public static function crossProd(S2Point $p1, S2Point $p2) {
         return new S2Point(
-            $p1->y * $p2->z - $p1->z * $p2->y, $p1->z * $p2->x - $p1->x * $p2->z, $p1->x * $p2->y - $p1->y * $p2->x);
+            $p1->y * $p2->z - $p1->z * $p2->y,
+            $p1->z * $p2->x - $p1->x * $p2->z,
+            $p1->x * $p2->y - $p1->y * $p2->x
+        );
     }
 
     public static function add(S2Point $p1, S2Point $p2) {
@@ -114,7 +117,7 @@ class S2Point {
      */
     private function aequal(S2Point $that, $margin) {
         return (abs($this->x - $that->x) < $margin) && (abs($this->y - $that->y) < $margin)
-        && (abs($this->z - $that->z) < $margin);
+            && (abs($this->z - $that->z) < $margin);
     }
 
     public function equals($that) {
@@ -155,7 +158,7 @@ class S2Point {
     public function toDegreesString() {
         $s2LatLng = new S2LatLng($this);
         return "(" . $s2LatLng->latDegrees() . ", "
-        . $s2LatLng->lngDegrees() . ")";
+            . $s2LatLng->lngDegrees() . ")";
     }
 
     /**

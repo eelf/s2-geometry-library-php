@@ -26,15 +26,15 @@
 * collection of directed edges and then assembling them into loops.
 *
 */
-public strictfp class S2PolygonBuilder {
-private static final Logger log = Logger.getLogger(S2PolygonBuilder.class.getCanonicalName());
-
+class S2PolygonBuilder {
+//private static final Logger log = Logger.getLogger(S2PolygonBuilder.class.getCanonicalName());
+/*
 private Options options;
 
 /**
 * The current set of edges, grouped by origin. The set of destination
 * vertices is a multiset so that the same edge can be present more than once.
-*/
+*#/
 private Map
 <S2Point, Multiset
 <S2Point>> edges;
@@ -42,7 +42,7 @@ private Map
 /**
 * Default constructor for well-behaved polygons. Uses the DIRECTED_XOR
 * options.
-*/
+*#/
 public S2PolygonBuilder() {
 this(Options.DIRECTED_XOR);
 
@@ -61,14 +61,14 @@ public enum Options {
 * and "holes" have opposite orientations (typically CCW shells and
 * clockwise holes), unless it is known that shells and holes do not share
 * any edges.
-*/
+*#/
 DIRECTED_XOR(false, true),
 
 /**
 * These are the options that should be used for assembling polygons that do
 * not follow the conventions above, e.g. where edge directions may vary
 * within a single loop, or shells and holes are not oppositely oriented.
-*/
+*#/
 UNDIRECTED_XOR(true, true),
 
 /**
@@ -76,14 +76,14 @@ UNDIRECTED_XOR(true, true),
 * desired output is a collection of loops rather than a polygon, and edges
 * may occur more than once. Edges are treated as undirected and are not
 * XORed together, in particular, adding edge A->B also adds B->A.
-*/
+*#/
 UNDIRECTED_UNION(true, false),
 
 /**
 * Finally, select this option when the desired output is a collection of
 * loops rather than a polygon, but your input edges are directed and you do
 * not want reverse edges to be added implicitly as above.
-*/
+*#/
 DIRECTED_UNION(false, false);
 
 private boolean undirectedEdges;
@@ -102,7 +102,7 @@ this.mergeDistance = S1Angle.radians(0);
 * If "undirected_edges" is false, then the input is assumed to consist of
 * edges that can be assembled into oriented loops without reversing any of
 * the edges. Otherwise, "undirected_edges" should be set to true.
-*/
+*#/
 public boolean getUndirectedEdges() {
 return undirectedEdges;
 }
@@ -127,21 +127,21 @@ return undirectedEdges;
 * (2) assembleLoops() will be called, and you want to keep abutting loops
 * separate in the output rather than merging their regions together (e.g.
 * assembling loops for Kansas City, KS and Kansas City, MO simultaneously).
-*/
+*#/
 public boolean getXorEdges() {
 return xorEdges;
 }
 
 /**
 * Default value: false
-*/
+*#/
 public boolean getValidate() {
 return validate;
 }
 
 /**
 * Default value: 0
-*/
+*#/
 public S1Angle getMergeDistance() {
 return mergeDistance;
 }
@@ -152,7 +152,7 @@ return mergeDistance;
 * rejected and returned as a set of "unused edges". Any remaining valid
 * loops are kept. If the entire polygon is invalid (e.g. two loops
 * intersect), then all loops are rejected and returned as unused edges.
-*/
+*#/
 public void setValidate(boolean validate) {
 this.validate = validate;
 }
@@ -168,7 +168,7 @@ this.validate = validate;
 *
 * This method is useful for assembling polygons out of input data where
 * vertices and/or edges may not be perfectly aligned.
-*/
+*#/
 public void setMergeDistance(S1Angle mergeDistance) {
 this.mergeDistance = mergeDistance;
 }
@@ -193,7 +193,7 @@ return options;
 * input data that may not follow S2 polygon conventions. Note that edges are
 * not allowed to cross each other. Also note that as a convenience, edges
 * where v0 == v1 are ignored.
-*/
+*#/
 public void addEdge(S2Point v0, S2Point v1) {
 // If xor_edges is true, we look for an existing edge in the opposite
 // direction. We either delete that edge or insert a new one.
@@ -233,7 +233,7 @@ edges.get(v1).add(v0);
 * directed edges convention described above.
 *
 * This method does not take ownership of the loop.
-*/
+*#/
 public void addLoop(S2Loop loop) {
 int sign = loop.sign();
 for (int i = loop.numVertices(); i > 0; --i) {
@@ -246,7 +246,7 @@ addEdge(loop.vertex(i), loop.vertex(i + sign));
 * Add all loops in the given polygon. Shells and holes are added with
 * opposite orientations as described for AddLoop(). This method does not take
 * ownership of the polygon.
-*/
+*#/
 public void addPolygon(S2Polygon polygon) {
 for (int i = 0; i < polygon.numLoops(); ++i) {
 addLoop(polygon.loop(i));
@@ -266,7 +266,7 @@ addLoop(polygon.loop(i));
 * be able to assemble all loops due to its preference for CCW loops.
 *
 * This method resets the S2PolygonBuilder state so that it can be reused.
-*/
+*#/
 public boolean assembleLoops(List
 <S2Loop> loops, List
 <S2Edge> unusedEdges) {
@@ -329,7 +329,7 @@ return unusedEdges.isEmpty();
 * expected region. So for example if all the world's coastlines were
 * assembled, the output S2Polygon would represent the land area (irrespective
 * of the input edge or loop orientations).
-*/
+*#/
 public boolean assemblePolygon(S2Polygon polygon, List
 <S2Edge> unusedEdges) {
 List
@@ -357,7 +357,7 @@ return success;
 
 /**
 * Convenience method for when you don't care about unused edges.
-*/
+*#/
 public S2Polygon assemblePolygon() {
 S2Polygon polygon = new S2Polygon();
 List
@@ -427,7 +427,7 @@ eraseEdge(v.vertex(i), v.vertex(j));
 * possible. We stop the loop as soon as we encounter any vertex that we have
 * seen before *except* for the first vertex (v0). This ensures that only CCW
 * loops are constructed when possible.
-*/
+*#/
 private S2Loop assembleLoop(S2Point v0, S2Point v1, List
 <S2Edge> unusedEdges) {
 
@@ -493,7 +493,7 @@ return new S2Loop(path);
 return null;
 }
 
-/** Erases all edges of the given loop and marks them as unused. */
+/** Erases all edges of the given loop and marks them as unused. *#/
 private void rejectLoop(S2Loop v, int n, List
 <S2Edge> unusedEdges) {
 for (int i = n - 1, j = 0; j < n; i = j++) {
@@ -501,7 +501,7 @@ unusedEdges.add(new S2Edge(v.vertex(i), v.vertex(j)));
 }
 }
 
-/** Erases all edges of the given loop and marks them as unused. */
+/** Erases all edges of the given loop and marks them as unused. *#/
 private void rejectLoop(List
 <S2Point> v, int n, List
 <S2Edge> unusedEdges) {
@@ -510,7 +510,7 @@ unusedEdges.add(new S2Edge(v.get(i), v.get(j)));
 }
 }
 
-/** Moves a set of vertices from old to new positions. */
+/** Moves a set of vertices from old to new positions. *#/
 private void moveVertices(Map
 <S2Point
 , S2Point> mergeMap) {
@@ -560,7 +560,7 @@ List
             /**
             * Look for groups of vertices that are separated by at most merge_distance()
             * and merge them into a single vertex.
-            */
+            *#/
             private void mergeVertices() {
             // The overall strategy is to start from each vertex and grow a maximal
             // cluster of mergable vertices. In graph theoretic terms, we find the
@@ -638,7 +638,7 @@ List
                                 * This class is not suitable for general use because it only supports
                                 * fixed-radius queries and has various special-purpose operations to avoid
                                 * the need for additional data structures.
-                                */
+                                *#/
                                 private class PointIndex extends ForwardingMultimap
                                 <S2CellId
                                 , MarkedS2Point> {
@@ -668,7 +668,7 @@ List
                                 return delegate;
                                 }
 
-                                /** Add a point to the index if it does not already exist. */
+                                /** Add a point to the index if it does not already exist. *#/
                                 public void add(S2Point p) {
                                 S2CellId id = S2CellId.fromPoint(p).parent(level);
                                 Collection
@@ -685,7 +685,7 @@ List
                                     * Return the set the unmarked points whose distance to "center" is less
                                     * than search_radius_, and mark these points. By construction, these points
                                     * will be contained by one of the vertex neighbors of "center".
-                                    */
+                                    *#/
                                     public void query(S2Point center, List
                                     <S2Point> output) {
                                         output.clear();
@@ -712,7 +712,7 @@ List
 
                                             /**
                                             * An S2Point that can be marked. Used in PointIndex.
-                                            */
+                                            *#/
                                             private class MarkedS2Point {
                                             private S2Point point;
                                             private boolean mark;
@@ -735,4 +735,5 @@ List
                                             this.mark = true;
                                             }
                                             }
-                                            }
+*/
+}

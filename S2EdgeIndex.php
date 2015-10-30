@@ -1,80 +1,83 @@
 <?php
 
-public abstract strictfp class S2EdgeIndex {
+class S2EdgeIndex {
 /**
 * Thicken the edge in all directions by roughly 1% of the edge length when
 * thickenEdge is true.
 */
-private static final double THICKENING = 0.01;
+const THICKENING = 0.01;
 
 /**
 * Threshold for small angles, that help lenientCrossing to determine whether
 * two edges are likely to intersect.
 */
-private static final double MAX_DET_ERROR = 1e-14;
+const MAX_DET_ERROR = 1e-14;
 
 /**
 * The cell containing each edge, as given in the parallel array
 * <code>edges</code>.
 */
-private long[] cells;
+private $cells;
 
 /**
 * The edge contained by each cell, as given in the parallel array
 * <code>cells</code>.
 */
-private int[] edges;
+private $edges;
 
 /**
 * No cell strictly below this level appears in mapping. Initially leaf level,
 * that's the minimum level at which we will ever look for test edges.
 */
-private int minimumS2LevelUsed;
+private $minimumS2LevelUsed;
 
 /**
 * Has the index been computed already?
 */
-private boolean indexComputed;
+private $indexComputed;
 
 /**
 * Number of queries so far
 */
-private int queryCount;
+private $queryCount;
 
 /**
 * Empties the index in case it already contained something.
 */
-public void reset() {
-minimumS2LevelUsed = S2CellId.MAX_LEVEL;
-indexComputed = false;
-queryCount = 0;
-cells = null;
-edges = null;
+public function reset() {
+    $this->minimumS2LevelUsed = S2CellId::MAX_LEVEL;
+    $this->indexComputed = false;
+    $this->queryCount = 0;
+    $this->cells = null;
+    $this->edges = null;
 }
 
-/**
-* Compares [cell1, edge1] to [cell2, edge2], by cell first and edge second.
-*
-* @return -1 if [cell1, edge1] is less than [cell2, edge2], 1 if [cell1,
-*         edge1] is greater than [cell2, edge2], 0 otherwise.
-*/
-private static final int compare(long cell1, int edge1, long cell2, int edge2) {
-if (cell1 < cell2) {
+    /**
+     * Compares [cell1, edge1] to [cell2, edge2], by cell first and edge second.
+     *
+     * @param $cell1
+     * @param $edge1
+     * @param $cell2
+     * @param $edge2
+     * @return int -1 if [cell1, edge1] is less than [cell2, edge2], 1 if [cell1,
+     */
+private static function compare($cell1, $edge1, $cell2, $edge2) {
+if ($cell1 < $cell2) {
 return -1;
-} else if (cell1 > cell2) {
+} else if ($cell1 > $cell2) {
 return 1;
-} else if (edge1 < edge2) {
+} else if ($edge1 < $edge2) {
 return -1;
-} else if (edge1 > edge2) {
+} else if ($edge1 > $edge2) {
 return 1;
 } else {
 return 0;
 }
 }
 
-/** Computes the index (if it has not been previously done). */
-public final void computeIndex() {
-if (indexComputed) {
+/** Computes the index (if it has not been previously done). *#/
+public final function computeIndex() {
+if ($this->indexComputed) {
 return;
 }
 List
@@ -103,8 +106,8 @@ sortIndex();
 indexComputed = true;
 }
 
-/** Sorts the parallel <code>cells</code> and <code>edges</code> arrays. */
-private void sortIndex() {
+/** Sorts the parallel <code>cells</code> and <code>edges</code> arrays. *#/
+private function sortIndex() {
 // create an array of indices and sort based on the values in the parallel
 // arrays at each index
 Integer[] indices = new Integer[cells.length];
@@ -130,15 +133,15 @@ cells = newCells;
 edges = newEdges;
 }
 
-public final boolean isIndexComputed() {
+public final function isIndexComputed() {
 return indexComputed;
 }
 
 /**
 * Tell the index that we just received a new request for candidates. Useful
 * to compute when to switch to quad tree.
-*/
-protected final void incrementQueryCount() {
+*#/
+protected final function incrementQueryCount() {
 ++queryCount;
 }
 
@@ -177,8 +180,8 @@ protected final void incrementQueryCount() {
 * If m = 100, 30 queries will give m*n*testCost = m * costInsert = 100ms,
 * while the marginal cost to find is 3ms. Thus, this is a reasonable thing to
 * do.
-*/
-public final void predictAdditionalCalls(int n) {
+*#/
+public final function predictAdditionalCalls(int n) {
 if (indexComputed) {
 return;
 }
@@ -192,12 +195,12 @@ computeIndex();
 * function getNumEdges() returns the number of edges in the index, while
 * edgeFrom(index) and edgeTo(index) return the "from" and "to" endpoints of
 * the edge at the given index.
-*/
-protected abstract int getNumEdges();
+*#/
+protected abstract function getNumEdges();
 
-protected abstract S2Point edgeFrom(int index);
+protected abstract function edgeFrom(int index);
 
-protected abstract S2Point edgeTo(int index);
+protected abstract function edgeTo(int index);
 
 /**
 * Appends to "candidateCrossings" all edge references which may cross the
@@ -205,8 +208,8 @@ protected abstract S2Point edgeTo(int index);
 * references of edges whose coverings overlap this covering. Parent cells are
 * checked level by level. Child cells are checked all at once by taking
 * advantage of the natural ordering of S2CellIds.
-*/
-protected void findCandidateCrossings(S2Point a, S2Point b, List
+*#/
+protected function findCandidateCrossings(S2Point a, S2Point b, List
 <Integer> candidateCrossings) {
 Preconditions.checkState(indexComputed);
 ArrayList
@@ -233,8 +236,8 @@ candidateCrossings.addAll(uniqueSet);
 * Returns the smallest cell containing all four points, or
 * {@link S2CellId#sentinel()} if they are not all on the same face. The
 * points don't need to be normalized.
-*/
-private static S2CellId containingCell(S2Point pa, S2Point pb, S2Point pc, S2Point pd) {
+*#/
+private static function containingCell(S2Point pa, S2Point pb, S2Point pc, S2Point pd) {
 S2CellId a = S2CellId.fromPoint(pa);
 S2CellId b = S2CellId.fromPoint(pb);
 S2CellId c = S2CellId.fromPoint(pc);
@@ -256,8 +259,8 @@ return a;
 /**
 * Returns the smallest cell containing both points, or Sentinel if they are
 * not all on the same face. The points don't need to be normalized.
-*/
-private static S2CellId containingCell(S2Point pa, S2Point pb) {
+*#/
+private static function containingCell(S2Point pa, S2Point pb) {
 S2CellId a = S2CellId.fromPoint(pa);
 S2CellId b = S2CellId.fromPoint(pb);
 
@@ -282,8 +285,8 @@ return a;
 *
 * It is guaranteed that no child of a covering cell will fully contain the
 * covered edge.
-*/
-private int getCovering(
+*#/
+private function getCovering(
 S2Point a, S2Point b, boolean thickenEdge, ArrayList
 <S2CellId> edgeCovering) {
 edgeCovering.clear();
@@ -362,8 +365,8 @@ return actualLevel;
 * @param cell1 One side of the inclusive query range.
 * @param cell2 The other side of the inclusive query range.
 * @return An array of length 2, containing the start/end indices.
-*/
-private int[] getEdges(long cell1, long cell2) {
+*#/
+private function getEdges(long cell1, long cell2) {
 // ensure cell1 <= cell2
 if (cell1 > cell2) {
 long temp = cell1;
@@ -379,7 +382,7 @@ return new int[]{
 -1 - binarySearch(cell2, Integer.MAX_VALUE)};
 }
 
-private int binarySearch(long cell, int edge) {
+private function binarySearch(long cell, int edge) {
 int low = 0;
 int high = cells.length - 1;
 while (low <= high) {
@@ -400,8 +403,8 @@ return -(low + 1);
 * Adds to candidateCrossings all the edges present in any ancestor of any
 * cell of cover, down to minimumS2LevelUsed. The cell->edge map is in the
 * variable mapping.
-*/
-private void getEdgesInParentCells(List
+*#/
+private function getEdgesInParentCells(List
 <S2CellId> cover, Set
 <Integer> candidateCrossings) {
 // Find all parent cells of covering cells.
@@ -427,8 +430,8 @@ candidateCrossings.add(edges[i]);
 
 /**
 * Returns true if ab possibly crosses cd, by clipping tiny angles to zero.
-*/
-private static boolean lenientCrossing(S2Point a, S2Point b, S2Point c, S2Point d) {
+*#/
+private static function lenientCrossing(S2Point a, S2Point b, S2Point c, S2Point d) {
 // assert (S2.isUnitLength(a));
 // assert (S2.isUnitLength(b));
 // assert (S2.isUnitLength(c));
@@ -451,8 +454,8 @@ return (acb * cbd >= 0) && (acb * dac >= 0);
 
 /**
 * Returns true if the edge and the cell (including boundary) intersect.
-*/
-private static boolean edgeIntersectsCellBoundary(S2Point a, S2Point b, S2Cell cell) {
+*#/
+private static function edgeIntersectsCellBoundary(S2Point a, S2Point b, S2Cell cell) {
 S2Point[] vertices = new S2Point[4];
 for (int i = 0; i < 4; ++i) {
 vertices[i] = cell.getVertex(i);
@@ -472,8 +475,8 @@ return false;
 * covering of edge. The covering of edge used is initially cover, but is
 * refined to eliminate quickly subcells that contain many edges but do not
 * intersect with edge.
-*/
-private void getEdgesInChildrenCells(S2Point a, S2Point b, List
+*#/
+private function getEdgesInChildrenCells(S2Point a, S2Point b, List
 <S2CellId> cover,
     Set
     <Integer> candidateCrossings) {
@@ -517,6 +520,8 @@ private void getEdgesInChildrenCells(S2Point a, S2Point b, List
         }
         }
         }
+*/
+            }
 
         /*
         * An iterator on data edges that may cross a query edge (a,b). Create the
@@ -525,100 +530,100 @@ private void getEdgesInChildrenCells(S2Point a, S2Point b, List
         * The current edge in the iteration has index index(), goes between from()
         * and to().
         */
-        public static class DataEdgeIterator {
-        /**
-        * The structure containing the data edges.
-        */
-        private final S2EdgeIndex edgeIndex;
+class DataEdgeIterator {
+    /**
+     * The structure containing the data edges.
+     */
+private $edgeIndex;
 
-        /**
-        * Tells whether getCandidates() obtained the candidates through brute force
-        * iteration or using the quad tree structure.
-        */
-        private boolean isBruteForce;
+    /**
+     * Tells whether getCandidates() obtained the candidates through brute force
+     * iteration or using the quad tree structure.
+     */
+private $isBruteForce;
 
-        /**
-        * Index of the current edge and of the edge before the last next() call.
-        */
-        private int currentIndex;
+    /**
+     * Index of the current edge and of the edge before the last next() call.
+     */
+private $currentIndex;
 
-        /**
-        * Cache of edgeIndex.getNumEdges() so that hasNext() doesn't make an extra
-        * call
-        */
-        private int numEdges;
+    /**
+     * Cache of edgeIndex.getNumEdges() so that hasNext() doesn't make an extra
+     * call
+     */
+private $numEdges;
 
-        /**
-        * All the candidates obtained by getCandidates() when we are using a
-        * quad-tree (i.e. isBruteForce = false).
-        */
-        ArrayList
-        <Integer> candidates;
+    /**
+     * All the candidates obtained by getCandidates() when we are using a
+     * quad-tree (i.e. isBruteForce = false).
+     *#/
+ArrayList
+<Integer> candidates;
+
+    /**
+     * Index within array above. We have: currentIndex =
+     * candidates.get(currentIndexInCandidates).
+     *#/
+private int currentIndexInCandidates;
+
+public DataEdgeIterator(S2EdgeIndex edgeIndex) {
+this.edgeIndex = edgeIndex;
+candidates = Lists.newArrayList();
+}
 
             /**
-            * Index within array above. We have: currentIndex =
-            * candidates.get(currentIndexInCandidates).
-            */
-            private int currentIndexInCandidates;
-
-            public DataEdgeIterator(S2EdgeIndex edgeIndex) {
-            this.edgeIndex = edgeIndex;
-            candidates = Lists.newArrayList();
-            }
-
-            /**
-            * Initializes the iterator to iterate over a set of candidates that may
-            * cross the edge (a,b).
-            */
+             * Initializes the iterator to iterate over a set of candidates that may
+             * cross the edge (a,b).
+             *#/
             public void getCandidates(S2Point a, S2Point b) {
-            edgeIndex.predictAdditionalCalls(1);
-            isBruteForce = !edgeIndex.isIndexComputed();
-            if (isBruteForce) {
-            edgeIndex.incrementQueryCount();
-            currentIndex = 0;
-            numEdges = edgeIndex.getNumEdges();
-            } else {
-            candidates.clear();
-            edgeIndex.findCandidateCrossings(a, b, candidates);
-            currentIndexInCandidates = 0;
-            if (!candidates.isEmpty()) {
+    edgeIndex.predictAdditionalCalls(1);
+    isBruteForce = !edgeIndex.isIndexComputed();
+    if (isBruteForce) {
+        edgeIndex.incrementQueryCount();
+        currentIndex = 0;
+        numEdges = edgeIndex.getNumEdges();
+    } else {
+        candidates.clear();
+        edgeIndex.findCandidateCrossings(a, b, candidates);
+        currentIndexInCandidates = 0;
+        if (!candidates.isEmpty()) {
             currentIndex = candidates.get(0);
-            }
-            }
-            }
+        }
+    }
+}
 
             /**
-            * Index of the current edge in the iteration.
-            */
+             * Index of the current edge in the iteration.
+             *#/
             public int index() {
-            Preconditions.checkState(hasNext());
+Preconditions.checkState(hasNext());
             return currentIndex;
             }
 
             /**
-            * False if there are no more candidates; true otherwise.
-            */
+             * False if there are no more candidates; true otherwise.
+             *#/
             public boolean hasNext() {
             if (isBruteForce) {
-            return (currentIndex < numEdges);
+                return (currentIndex < numEdges);
             } else {
-            return currentIndexInCandidates < candidates.size();
+                return currentIndexInCandidates < candidates.size();
             }
             }
 
             /**
-            * Iterate to the next available candidate.
-            */
+             * Iterate to the next available candidate.
+             *#/
             public void next() {
-            Preconditions.checkState(hasNext());
+Preconditions.checkState(hasNext());
             if (isBruteForce) {
-            ++currentIndex;
+                ++currentIndex;
             } else {
-            ++currentIndexInCandidates;
-            if (currentIndexInCandidates < candidates.size()) {
-            currentIndex = candidates.get(currentIndexInCandidates);
+                ++currentIndexInCandidates;
+                if (currentIndexInCandidates < candidates.size()) {
+                    currentIndex = candidates.get(currentIndexInCandidates);
+                }
             }
             }
-            }
-            }
-            }
+*/
+}

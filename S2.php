@@ -120,8 +120,7 @@ class S2 {
 //  }
 
 // Don't instantiate
-    private function __construct() {
-    }
+    private function __construct() {}
 
     /**
      * Return a unique "origin" on the sphere for operations that need a fixed
@@ -696,6 +695,7 @@ class S2 {
 /**
  * Defines an area or a length cell metric.
  */
+
 class Metric {
     private $deriv;
     private $dim;

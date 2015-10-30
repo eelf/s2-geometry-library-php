@@ -69,32 +69,32 @@ class R1Interval {
         return $this->hi() - $this->lo();
     }
 
-//  public boolean contains(double p) {
-//    return p >= lo() && p <= hi();
-//  }
-
-//  public boolean interiorContains(double p) {
-//    return p > lo() && p < hi();
-//  }
-
     /** Return true if this interval contains the interval 'y'. */
-//  public boolean contains(R1Interval y) {
-//    if (y.isEmpty()) {
-//      return true;
-//    }
-//    return y.lo() >= lo() && y.hi() <= hi();
-//  }
+    public function contains($p) {
+        if ($p instanceof R1Interval) {
+            $y = $p;
+            if ($y->isEmpty()) {
+                return true;
+            }
+            return $y->lo() >= $this->lo() && $y->hi() <= $this->hi();
+        }
+        return $p >= $this->lo() && $p <= $this->hi();
+    }
 
     /**
      * Return true if the interior of this interval contains the entire interval
      * 'y' (including its boundary).
      */
-//  public boolean interiorContains(R1Interval y) {
-//    if (y.isEmpty()) {
-//      return true;
-//    }
-//    return y.lo() > lo() && y.hi() < hi();
-//  }
+    public function interiorContains($p) {
+        if ($p instanceof R1Interval) {
+            $y = $p;
+            if ($y->isEmpty()) {
+                return true;
+            }
+            return $y->lo() > $this->lo() && $y->hi() < $this->hi();
+        }
+        return $p > $this->lo() && $p < $this->hi();
+    }
 
     /**
      * Return true if this interval intersects the given interval, i.e. if they
@@ -112,22 +112,22 @@ class R1Interval {
      * Return true if the interior of this interval intersects any point of the
      * given interval (including its boundary).
      */
-//  public boolean interiorIntersects(R1Interval y) {
-//    return y.lo() < hi() && lo() < y.hi() && lo() < hi() && y.lo() <= y.hi();
-//  }
+    public function interiorIntersects(R1Interval $y) {
+        return $y->lo() < $this->hi() && $this->lo() < $y->hi() && $this->lo() < $this->hi() && $y->lo() <= $y->hi();
+    }
 
     /** Expand the interval so that it contains the given point "p". */
-    /*  public R1Interval addPoint(double p) {
-    if (isEmpty()) {
-    return R1Interval.fromPoint(p);
-    } else if (p < lo()) {
-    return new R1Interval(p, hi());
-    } else if (p > hi()) {
-    return new R1Interval(lo(), p);
-    } else {
-    return new R1Interval(lo(), hi());
+    public function addPoint($p) {
+        if (isEmpty()) {
+            return R1Interval::fromPoint($p);
+        } else if ($p < $this->lo()) {
+            return new R1Interval($p, $this->hi());
+        } else if ($p > $this->hi()) {
+            return new R1Interval($this->lo(), $p);
+        } else {
+            return new R1Interval($this->lo(), $this->hi());
+        }
     }
-    }*/
 
     /**
      * Return an interval that contains all points with a distance "radius" of a
@@ -164,50 +164,45 @@ class R1Interval {
         return new R1Interval(max($this->lo(), $y->lo()), min($this->hi(), $y->hi()));
     }
 
-//  @Override
-//  public boolean equals(Object that) {
-//    if (that instanceof R1Interval) {
-//      R1Interval y = (R1Interval) that;
+    public function equals($that) {
+        if ($that instanceof R1Interval) {
+            $y = $that;
 // Return true if two intervals contain the same set of points.
-//      return (lo() == y.lo() && hi() == y.hi()) || (isEmpty() && y.isEmpty());
-//
-//    }
-//    return false;
-//  }
+            return ($this->lo() == $y->lo() && $this->hi() == $y->hi()) || ($this->isEmpty() && $y->isEmpty());
+        }
+        return false;
+    }
 
-//  @Override
-//  public int hashCode() {
-//    if (isEmpty()) {
-//      return 17;
-//    }
+    public function hashCode() {
+        if (isEmpty()) {
+            return 17;
+        }
 
-//    long value = 17;
-//    value = 37 * value + Double.doubleToLongBits(lo);
-//    value = 37 * value + Double.doubleToLongBits(hi);
-//    return (int) (value ^ (value >>> 32));
-//  }
-
-//  public boolean approxEquals(R1Interval y) {
-//    return approxEquals(y, 1e-15);
-//  }
+        $value = 17;
+//    $value = 37 * $value + Double.doubleToLongBits($this->lo);
+//    $value = 37 * $value + Double.doubleToLongBits($this->hi);
+//        return (int)($value ^ ($value >>> 32));
+    }
 
     /**
      * Return true if length of the symmetric difference between the two intervals
      * is at most the given tolerance.
      *
      */
-//  public boolean approxEquals(R1Interval y, double maxError) {
-//    if (isEmpty()) {
-//      return y.getLength() <= maxError;
-//    }
-//    if (y.isEmpty()) {
-//      return getLength() <= maxError;
-//    }
-//    return Math.abs(y.lo() - lo()) + Math.abs(y.hi() - hi()) <= maxError;
-//  }
-//
-//  @Override
-//  public String toString() {
-//    return "[" + lo() + ", " + hi() + "]";
-//  }
+    public function approxEquals(R1Interval $y, $maxError = null) {
+        if ($maxError === null) {
+            return $this->approxEquals($y, 1e-15);
+        }
+        if ($this->isEmpty()) {
+            return $y->getLength() <= $maxError;
+        }
+        if ($y->isEmpty()) {
+            return $this->getLength() <= $maxError;
+        }
+        return abs($y->lo() - $this->lo()) + abs($y->hi() - $this->hi()) <= $maxError;
+    }
+
+    public function toString() {
+        return "[" . $this->lo() . ", " . $this->hi() . "]";
+    }
 }

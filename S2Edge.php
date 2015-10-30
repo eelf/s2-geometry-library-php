@@ -3,6 +3,7 @@
 /**
  * An abstract directed edge from one S2Point to another S2Point.
  */
+
 class S2Edge {
     /** @var S2Point */
     private $start;
@@ -21,7 +22,7 @@ class S2Edge {
     /**
      * @return \S2Point
      */
-    public function  getStart() {
+    public function getStart() {
         return $this->start;
     }
 
@@ -30,8 +31,13 @@ class S2Edge {
     }
 
     public function toString() {
-        return sprintf("Edge: (%s -> %s)\n   or [%s -> %s]",
-            $this->start->toDegreesString(), $this->end->toDegreesString(), $this->start, $this->end);
+        return sprintf(
+            "Edge: (%s -> %s)\n   or [%s -> %s]",
+            $this->start->toDegreesString(),
+            $this->end->toDegreesString(),
+            $this->start,
+            $this->end
+        );
     }
 
     public function hashCode() {

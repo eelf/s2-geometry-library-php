@@ -310,8 +310,7 @@ class S2RegionCoverer {
 //        echo "\tcandidate numChildred is zero\n";
             // Do nothing
         } else if (!$this->interiorCovering && $numTerminals == 1 << $this->maxChildrenShift()
-            && $candidate->cell->level() >= $this->minLevel
-        ) {
+            && $candidate->cell->level() >= $this->minLevel) {
             // Optimization: add the parent cell rather than all of its children.
             // We can't do this for interior coverings, since the children just
             // intersect the region, but may not be contained by it - we need to
@@ -451,8 +450,7 @@ class S2RegionCoverer {
             // logger.info("Pop: " + candidate.cell.id());
 //        echo "Pop: " . $candidate . "\n";
             if ($candidate->cell->level() < $this->minLevel || $candidate->numChildren == 1
-                || $this->result->size() + ($this->interiorCovering ? 0 : $this->candidateQueue->size()) + $candidate->numChildren <= $this->maxCells
-            ) {
+                || $this->result->size() + ($this->interiorCovering ? 0 : $this->candidateQueue->size()) + $candidate->numChildren <= $this->maxCells) {
                 // Expand this candidate into its children.
                 for ($i = 0; $i < $candidate->numChildren; ++$i) {
                     $c = $candidate->children[$i];

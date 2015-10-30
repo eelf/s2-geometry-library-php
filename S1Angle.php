@@ -34,7 +34,7 @@ class S1Angle {
         return round($this->degrees() * 1e5);
     }
 
-    public function  e6() {
+    public function e6() {
         return round($this->degrees() * 1e6);
     }
 

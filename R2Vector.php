@@ -32,68 +32,64 @@ class R2Vector {
         }
         return $index == 0 ? $this->x : $this->y;
     }
-    /*
-public static R2Vector add(final R2Vector p1, final R2Vector p2) {
-return new R2Vector(p1.x + p2.x, p1.y + p2.y);
-}
 
-public static R2Vector mul(final R2Vector p, double m) {
-return new R2Vector(m * p.x, m * p.y);
-}
+    public static function add(R2Vector $p1, R2Vector $p2) {
+        return new R2Vector($p1->x + $p2->x, $p1->y + $p2->y);
+    }
 
-public double norm2() {
-return (x * x) + (y * y);
-}
+    public static function mul(R2Vector $p, $m) {
+        return new R2Vector($m * $p->x, $m * $p->y);
+    }
 
-public static double dotProd(final R2Vector p1, final R2Vector p2) {
-return (p1.x * p2.x) + (p1.y * p2.y);
-}
+    public function norm2() {
+        return ($this->x * $this->x) + ($this->y * $this->y);
+    }
 
-public double dotProd(R2Vector that) {
-return dotProd(this, that);
-}
+    public static function sdotProd(R2Vector $p1, R2Vector $p2) {
+        return ($p1->x * $p2->x) + ($p1->y * $p2->y);
+    }
 
-public double crossProd(final R2Vector that) {
-return this.x * that.y - this.y * that.x;
-}
+    public function dotProd(R2Vector $that) {
+        return self::sdotProd($this, $that);
+    }
 
-public boolean lessThan(R2Vector vb) {
-if (x < vb.x) {
-return true;
-}
-if (vb.x < x) {
-return false;
-}
-if (y < vb.y) {
-return true;
-}
-return false;
-}
+    public function crossProd(R2Vector $that) {
+        return $this->x * $that->y - $this->y * $that->x;
+    }
 
-@Override
-public boolean equals(Object that) {
-if (!(that instanceof R2Vector)) {
-return false;
-}
-R2Vector thatPoint = (R2Vector) that;
-return this.x == thatPoint.x && this.y == thatPoint.y;
-}
+    public function lessThan(R2Vector $vb) {
+        if ($this->x < $vb->x) {
+            return true;
+        }
+        if ($vb->x < $this->x) {
+            return false;
+        }
+        if ($this->y < $vb->y) {
+            return true;
+        }
+        return false;
+    }
 
-/**
-* Calcualates hashcode based on stored coordinates. Since we want +0.0 and
-* -0.0 to be treated the same, we ignore the sign of the coordinates.
-*#/
-@Override
-public int hashCode() {
-long value = 17;
-value += 37 * value + Double.doubleToLongBits(Math.abs(x));
-value += 37 * value + Double.doubleToLongBits(Math.abs(y));
-return (int) (value ^ (value >>> 32));
-}
+    public function equals($that) {
+        if (!($that instanceof R2Vector)) {
+            return false;
+        }
+        $thatPoint = $that;
+        return $this->x == $thatPoint->x && $this->y == $thatPoint->y;
+    }
 
-@Override
-public String toString() {
-return "(" + x + ", " + y + ")";
-}
-*/
+    /**
+     * Calculates hashcode based on stored coordinates. Since we want +0.0 and
+     * -0.0 to be treated the same, we ignore the sign of the coordinates.
+     */
+    public function hashCode() {
+        $value = 17;
+        //$value += 37 * $value + Double.doubleToLongBits(abs($this->x));
+        //$value += 37 * $value + Double.doubleToLongBits(abs($this->y));
+        //return (int) ($value ^ ($value >>> 32));
+    }
+
+    public function toString() {
+        return "(" . $this->x . ", " . $this->y . ")";
+    }
 }

@@ -112,7 +112,7 @@ class S2Cell implements S2Region {
         /** @var S2CellId $id */
         $id = $this->cellId->childBegin();
         for ($pos = 0; $pos < 4; ++$pos, $id = $id->next()) {
-            $child = & $children[$pos];
+            $child = &$children[$pos];
             $child->face = $this->face;
             $child->level = $this->level + 1;
             $new_o = S2::posToOrientation($pos);
