@@ -26,6 +26,7 @@
 * collection of directed edges and then assembling them into loops.
 *
 */
+
 class S2PolygonBuilder {
 //private static final Logger log = Logger.getLogger(S2PolygonBuilder.class.getCanonicalName());
 /*
@@ -735,5 +736,4 @@ List
                                             this.mark = true;
                                             }
                                             }
-*/
-}
+*/}

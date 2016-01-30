@@ -11,15 +11,16 @@
 * vertices.
 *
 */
+
 class S2Polyline implements S2Region {
 //private static final Logger log = Logger.getLogger(S2Polyline.class.getCanonicalName());
 
 //private final int numVertices;
-private $numVertices;
+    private $numVertices;
 //private final S2Point[] vertices;
-private $vertices;
+    private $vertices;
 
-/**
+    /**
 * Create a polyline that connects the given vertices. Empty polylines are
 * allowed. Adjacent vertices should not be identical or antipodal. All
 * vertices should be unit length.

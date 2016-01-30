@@ -25,209 +25,177 @@
  * loop.
  *
  */
-class S2Polygon implements S2Region {
-    private $log = null; //Logger.getLogger(S2Polygon.class.getCanonicalName());
 
-//private List <S2Loop> loops;
+class S2Polygon implements S2Region {
+    /** @var S2Loop[] */
     private $loops;
 
-//private S2LatLngRect bound;
+    /** @var S2LatLngRect */
     private $bound;
-//private boolean hasHoles;
+
+    /** @var boolean */
     private $hasHoles;
-//private int numVertices;
+
+    /** @var int */
     private $numVertices;
 
-    /**
-     * Creates an empty polygon that should be initialized by calling Init().
-     */
-    public function __construct() {
-//$this->loops = Lists.newArrayList();
-        $this->bound = S2LatLngRect::emptya();
-        $this->hasHoles = false;
-        $this->numVertices = 0;
+    public function __construct($loops_loop_polygon = null) {
+        if ($loops_loop_polygon instanceof S2Loop) {
+            $this->loops = [];
+            $this->bound = $loops_loop_polygon->getRectBound();
+            $this->hasHoles = false;
+            $this->numVertices = $loops_loop_polygon->numVertices();
+
+            $this->loops->add($loops_loop_polygon);
+        } else if ($oops_loop_polygon instanceof S2Polygon) {
+            $this->loops = [];
+            $this->bound = $loops_loop_polygon->getRectBound();
+            $this->hasHoles = $loops_loop_polygon->hasHoles;
+            $this->numVertices = $loops_loop_polygon->numVertices;
+
+            for ($i = 0; $i < $loops_loop_polygon->numLoops(); ++$i) {
+                $this->loops->add(new S2Loop($loops_loop_polygon->loop($i)));
+            }
+        } else if (is_array($loops_loop_polygon)) {
+            $this->loops = [];
+            $this->bound = S2LatLngRect::emptya();
+
+            $this->init($loops_loop_polygon);
+        } else {
+            $this->loops = [];
+            $this->bound = S2LatLngRect::emptya();
+            $this->hasHoles = false;
+            $this->numVertices = 0;
+        }
     }
 
     /**
-     * Convenience constructor that calls Init() with the given loops. Clears the
-     * given list.
-     *#/
-     * public S2Polygon(List
-     * <S2Loop> loops) {
-     * this.loops = Lists.newArrayList();
-     * this.bound = S2LatLngRect.empty();
-     *
-     * init(loops);
-     * }
-     *
-     * /**
-     * Copy constructor.
-     *#/
-     * public S2Polygon(S2Loop loop) {
-     * this.loops = Lists.newArrayList();
-     * this.bound = loop.getRectBound();
-     * this.hasHoles = false;
-     * this.numVertices = loop.numVertices();
-     *
-     * loops.add(loop);
-     * }
-     *
-     * /**
-     * Copy constructor.
-     *#/
-     * public S2Polygon(S2Polygon src) {
-     * this.loops = Lists.newArrayList();
-     * this.bound = src.getRectBound();
-     * this.hasHoles = src.hasHoles;
-     * this.numVertices = src.numVertices;
-     *
-     * for (int i = 0; i < src.numLoops(); ++i) {
-     * loops.add(new S2Loop(src.loop(i)));
-     * }
-     * }
-     *
-     * /**
      * Comparator (needed by Comparable interface). For two polygons to be
      * compared as equal: - the must have the same number of loops; - the loops
      * must be ordered in the same way (this is guaranteed by the total ordering
      * imposed by sortValueLoops). - loops must be logically equivalent (even if
      * ordered with a different starting point, e.g. ABCD and BCDA).
-     *#/
-     * @Override
-     * public int compareTo(S2Polygon other) {
-     * // If number of loops differ, use that.
-     * if (this.numLoops() != other.numLoops()) {
-     * return this.numLoops() - other.numLoops();
-     * }
-     * for (int i = 0; i < this.numLoops(); ++i) {
-     * int compare = this.loops.get(i).compareTo(other.loops.get(i));
-     * if (compare != 0) {
-     * return compare;
-     * }
-     * }
-     * return 0;
-     * }
-     *
-     * /**
+     */
+    public function compareTo(S2Polygon $other) {
+      // If number of loops differ, use that.
+        if ($this->numLoops() != $other->numLoops()) {
+            return $this->numLoops() - $other->numLoops();
+        }
+        for ($i = 0; $i < $this->numLoops(); ++$i) {
+            $compare = $this->loops->get($i)->compareTo($other->loops->get($i));
+            if ($compare != 0) {
+                return $compare;
+            }
+        }
+        return 0;
+    }
+
+    /**
      * Initialize a polygon by taking ownership of the given loops and clearing
      * the given list. This method figures out the loop nesting hierarchy and then
      * reorders the loops by following a preorder traversal. This implies that
      * each loop is immediately followed by its descendants in the nesting
      * hierarchy. (See also getParent and getLastDescendant.)
-     *#/
-     * public void init(List
-     * <S2Loop> loops) {
-     * // assert isValid(loops);
-     * // assert (this.loops.isEmpty());
-     *
-     * Map
-     * <S2Loop
-     * , List
-     * <S2Loop>> loopMap = Maps.newHashMap();
-     * // Yes, a null key is valid. It is used here to refer to the root of the
-     * // loopMap
-     * loopMap.put(null, Lists.
-     * <S2Loop>newArrayList());
-     *
-     * for (S2Loop loop : loops) {
-     * insertLoop(loop, null, loopMap);
-     * this.numVertices += loop.numVertices();
-     * }
-     * loops.clear();
-     *
-     * // Sort all of the lists of loops; in this way we guarantee a total ordering
-     * // on loops in the polygon. Loops will be sorted by their natural ordering,
-     * // while also preserving the requirement that each loop is immediately
-     * // followed by its descendants in the nesting hierarchy.
-     * //
-     * // TODO(andriy): as per kirilll in CL 18750833 code review comments:
-     * // This should work for now, but I think it's possible to guarantee the
-     * // correct order inside insertLoop by searching for the correct position in
-     * // the children list before inserting.
-     * sortValueLoops(loopMap);
-     *
-     * // Reorder the loops in depth-first traversal order.
-     * // Starting at null == starting at the root
-     * initLoop(null, -1, loopMap);
-     *
-     * // TODO(dbeaumont): Add tests or preconditions for these asserts (here and elesewhere).
-     * // forall i != j : containsChild(loop(i), loop(j), loopMap) == loop(i).containsNested(loop(j)));
-     *
-     * // Compute the bounding rectangle of the entire polygon.
-     * hasHoles = false;
-     * bound = S2LatLngRect.empty();
-     * for (int i = 0; i < numLoops(); ++i) {
-     * if (loop(i).sign() < 0) {
-     * hasHoles = true;
-     * } else {
-     * bound = bound.union(loop(i).getRectBound());
-     * }
-     * }
-     * }
-     *
-     * /**
+     */
+    public function init($loops) {
+      // assert isValid(loops);
+      // assert (this.loops.isEmpty());
+
+        $loopMap = [];
+      // Yes, a null key is valid. It is used here to refer to the root of the
+      // loopMap
+        $loopMap[null] = [];
+
+        foreach ($loops as $loop) {
+            $this->insertLoop($loop, null, $loopMap);
+            $this->numVertices += $loop->numVertices();
+        }
+        $loops = [];
+     
+      // Sort all of the lists of loops; in this way we guarantee a total ordering
+      // on loops in the polygon. Loops will be sorted by their natural ordering,
+      // while also preserving the requirement that each loop is immediately
+      // followed by its descendants in the nesting hierarchy.
+      //
+      // TODO(andriy): as per kirilll in CL 18750833 code review comments:
+      // This should work for now, but I think it's possible to guarantee the
+      // correct order inside insertLoop by searching for the correct position in
+      // the children list before inserting.
+        $this->sortValueLoops($loopMap);
+     
+      // Reorder the loops in depth-first traversal order.
+      // Starting at null == starting at the root
+        $this->initLoop(null, -1, $loopMap);
+     
+      // TODO(dbeaumont): Add tests or preconditions for these asserts (here and elesewhere).
+      // forall i != j : containsChild(loop(i), loop(j), loopMap) == loop(i).containsNested(loop(j)));
+     
+      // Compute the bounding rectangle of the entire polygon.
+        $hasHoles = false;
+        $bound = S2LatLngRect::emptya();
+        for ($i = 0; $i < $this->numLoops(); ++$i) {
+            if ($this->loop($i)->sign() < 0) {
+                $hasHoles = true;
+            } else {
+                $bound = $bound->union($this->loop($i)->getRectBound());
+            }
+        }
+    }
+
+    /**
      * Release ownership of the loops of this polygon by appending them to the
      * given list. Resets the polygon to be empty.
-     *#/
-     * public void release(List
-     * <S2Loop> loops) {
-     * loops.addAll(this.loops);
-     * this.loops.clear();
-     * bound = S2LatLngRect.empty();
-     * hasHoles = false;
-     * numVertices = 0;
-     * }
-     *
-     * /**
+     */
+    public function release(&$loops) {
+        $loops = array_merge($loops, $this->loops);
+        $this->loops = [];
+        $bound = S2LatLngRect::emptya();
+        $this->hasHoles = false;
+        $this->numVertices = 0;
+    }
+
+    /**
      * Return true if the given loops form a valid polygon. Assumes that that all
      * of the given loops have already been validated.
-     *#/
-     * public static boolean isValid(final List
-     * <S2Loop> loops) {
-     * // If a loop contains an edge AB, then no other loop may contain AB or BA.
-     * // We only need this test if there are at least two loops, assuming that
-     * // each loop has already been validated.
-     * if (loops.size() > 1) {
-     * Map
-     * <UndirectedEdge
-     * , LoopVertexIndexPair> edges = Maps.newHashMap();
-     * for (int i = 0; i < loops.size(); ++i) {
-     * S2Loop lp = loops.get(i);
-     * for (int j = 0; j < lp.numVertices(); ++j) {
-     * UndirectedEdge key = new UndirectedEdge(lp.vertex(j), lp.vertex(j + 1));
-     * LoopVertexIndexPair value = new LoopVertexIndexPair(i, j);
-     * if (edges.containsKey(key)) {
-     * LoopVertexIndexPair other = edges.get(key);
-     * log.info(
-     * "Duplicate edge: loop " + i + ", edge " + j + " and loop " + other.getLoopIndex()
-     * + ", edge " + other.getVertexIndex());
-     * return false;
-     * } else {
-     * edges.put(key, value);
-     * }
-     * }
-     * }
-     * }
-     *
-     * // Verify that no loop covers more than half of the sphere, and that no
-     * // two loops cross.
-     * for (int i = 0; i < loops.size(); ++i) {
-     * if (!loops.get(i).isNormalized()) {
-     * log.info("Loop " + i + " encloses more than half the sphere");
-     * return false;
-     * }
-     * for (int j = i + 1; j < loops.size(); ++j) {
-     * // This test not only checks for edge crossings, it also detects
-     * // cases where the two boundaries cross at a shared vertex.
-     * if (loops.get(i).containsOrCrosses(loops.get(j)) < 0) {
-     * log.info("Loop " + i + " crosses loop " + j);
-     * return false;
-     * }
-     * }
-     * }
-     * return true;
-     * }
      */
+    public static function isValid($loops) {
+      // If a loop contains an edge AB, then no other loop may contain AB or BA.
+      // We only need this test if there are at least two loops, assuming that
+      // each loop has already been validated.
+        if (count($loops) > 1) {
+            $edges = [];
+            for ($i = 0; $i < count($loops); ++$i) {
+                $lp = $loops[$i];
+                for ($j = 0; $j < $lp->numVertices(); ++$j) {
+                    $key = new UndirectedEdge($lp->vertex($j), $lp->vertex($j + 1));
+                    $value = new LoopVertexIndexPair($i, $j);
+                    if (isset($edges[$key])) {
+                        $other = $edges[$key];
+                        return false;
+                    } else {
+                        $edges[$key] = $value;
+                    }
+                }
+            }
+        }
+     
+      // Verify that no loop covers more than half of the sphere, and that no
+      // two loops cross.
+        for ($i = 0; $i < count($loops); ++$i) {
+            if (!$loops[$i]->isNormalized()) {
+                return false;
+            }
+            for ($j = $i + 1; $j < count($loops); ++$j) {
+      // This test not only checks for edge crossings, it also detects
+      // cases where the two boundaries cross at a shared vertex.
+                if ($loops[$i]->containsOrCrosses($loops[$j]) < 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     public function numLoops() {
         return count($this->loops);
     }
@@ -238,19 +206,19 @@ class S2Polygon implements S2Region {
 
     /**
      * Return the index of the parent of loop k, or -1 if it has no parent.
-     *#/
-     * public int getParent(int k) {
-     * int depth = loop(k).depth();
-     * if (depth == 0) {
-     * return -1; // Optimization.
-     * }
-     * while (--k >= 0 && loop(k).depth() >= depth) {
-     * // spin
-     * }
-     * return k;
-     * }
-     *
-     * /**
+     */
+    public function getParent($k) {
+        $depth = $this->loop($k)->depth();
+        if ($depth == 0) {
+            return -1; // Optimization.
+        }
+        while (--$k >= 0 && $this->loop($k)->depth() >= $depth) {
+      // spin
+        }
+        return k;
+    }
+
+    /**
      * Return the index of the last loop that is contained within loop k. Returns
      * num_loops() - 1 if k < 0. Note that loops are indexed according to a
      * preorder traversal of the nesting hierarchy, so the immediate children of
@@ -348,19 +316,39 @@ class S2Polygon implements S2Region {
      * @return bool
      */
     public function contains($b) {
-// If both polygons have one loop, use the more efficient S2Loop method.
-// Note that S2Loop.contains does its own bounding rectangle check.
+        if ($b instanceof S2Point) {
+            /**
+     * The point 'p' does not need to be normalized.
+     */
+            if ($this->numLoops() == 1) {
+                return $this->loop(0)->contains($p); // Optimization.
+            }
+            if (!$this->bound->contains($p)) {
+                return false;
+            }
+            $inside = false;
+            for ($i = 0; $i < $this->numLoops(); ++$i) {
+                $inside ^= $this->loop($i)->contains($p);
+                if ($inside && !$hasHoles) {
+                    break; // Shells are disjoint.
+                }
+            }
+            return $inside;
+        }
+
+            // If both polygons have one loop, use the more efficient S2Loop method.
+        // Note that S2Loop.contains does its own bounding rectangle check.
         if ($this->numLoops() == 1 && $b->numLoops() == 1) {
             return $this->loop(0)->contains($b->loop(0));
         }
 
-// Otherwise if neither polygon has holes, we can still use the more
-// efficient S2Loop::Contains method (rather than ContainsOrCrosses),
-// but it's worthwhile to do our own bounds check first.
+        // Otherwise if neither polygon has holes, we can still use the more
+        // efficient S2Loop::Contains method (rather than ContainsOrCrosses),
+        // but it's worthwhile to do our own bounds check first.
         if (!$this->bound->contains($b->getRectBound())) {
-// If the union of the bounding boxes spans the full longitude range,
-// it is still possible that polygon A contains B. (This is only
-// possible if at least one polygon has multiple shells.)
+            // If the union of the bounding boxes spans the full longitude range,
+            // it is still possible that polygon A contains B. (This is only
+            // possible if at least one polygon has multiple shells.)
             if (!$this->bound->lng()->union($b->getRectBound()->lng())->isFull()) {
                 return false;
             }
@@ -390,7 +378,7 @@ class S2Polygon implements S2Region {
      * Return true if this polygon intersects the given other polygon, i.e. if
      * there is a point that is contained by both polygons.
      */
-    public function  intersects(S2Polygon $b) {
+    public function intersects(S2Polygon $b) {
 // A.intersects(B) if and only if !complement(A).contains(B). However,
 // implementing a complement() operation is trickier than it sounds,
 // and in any case it's more efficient to test for intersection directly.
@@ -651,7 +639,7 @@ class S2Polygon implements S2Region {
      * /**
      * Returns total number of vertices in all loops.
      */
-    public function  getNumVertices() {
+    public function getNumVertices() {
         return $this->numVertices;
     }
 
@@ -862,7 +850,6 @@ class S2Polygon implements S2Region {
         return $this->bound->getCapBound();
     }
 
-
     /** Return a bounding latitude-longitude rectangle. */
     public function getRectBound() {
         return $this->bound;
@@ -908,111 +895,80 @@ class S2Polygon implements S2Region {
         return $this->intersects($cellPoly);
     }
 
-    /**
-     * The point 'p' does not need to be normalized.
-     *#/
-     * public boolean contains(S2Point p) {
-     * if (numLoops() == 1) {
-     * return loop(0).contains(p); // Optimization.
-     * }
-     * if (!bound.contains(p)) {
-     * return false;
-     * }
-     * boolean inside = false;
-     * for (int i = 0; i < numLoops(); ++i) {
-     * inside ^= loop(i).contains(p);
-     * if (inside && !hasHoles) {
-     * break; // Shells are disjoint.
-     * }
-     * }
-     * return inside;
-     * }
-     *
-     * // For each map entry, sorts the value list.
-     * private static void sortValueLoops(Map
-     * <S2Loop
-     * , List
-     * <S2Loop>> loopMap) {
-     * for (S2Loop key : loopMap.keySet()) {
-     * Collections.sort(loopMap.get(key));
-     * }
-     * }
-     *
-     * private static void insertLoop(S2Loop newLoop, S2Loop parent, Map
-     * <S2Loop
-     * , List
-     * <S2Loop>> loopMap) {
-     * List
-     * <S2Loop> children = loopMap.get(parent);
-     *
-     * if (children == null) {
-     * children = Lists.newArrayList();
-     * loopMap.put(parent, children);
-     * }
-     *
-     * for (S2Loop child : children) {
-     * if (child.containsNested(newLoop)) {
-     * insertLoop(newLoop, child, loopMap);
-     * return;
-     * }
-     * }
-     *
-     * // No loop may contain the complement of another loop. (Handling this case
-     * // is significantly more complicated.)
-     * // assert (parent == null || !newLoop.containsNested(parent));
-     *
-     * // Some of the children of the parent loop may now be children of
-     * // the new loop.
-     * List
-     * <S2Loop> newChildren = loopMap.get(newLoop);
-     * for (int i = 0; i < children.size();) {
-     * S2Loop child = children.get(i);
-     * if (newLoop.containsNested(child)) {
-     * if (newChildren == null) {
-     * newChildren = Lists.newArrayList();
-     * loopMap.put(newLoop, newChildren);
-     * }
-     * newChildren.add(child);
-     * children.remove(i);
-     * } else {
-     * ++i;
-     * }
-     * }
-     * children.add(newLoop);
-     * }
-     *
-     * private void initLoop(S2Loop loop, int depth, Map
-     * <S2Loop
-     * , List
-     * <S2Loop>> loopMap) {
-     * if (loop != null) {
-     * loop.setDepth(depth);
-     * loops.add(loop);
-     * }
-     * List
-     * <S2Loop> children = loopMap.get(loop);
-     * if (children != null) {
-     * for (S2Loop child : children) {
-     * initLoop(child, depth + 1, loopMap);
-     * }
-     * }
-     * }
-     *
-     * private int containsOrCrosses(S2Loop b) {
-     * boolean inside = false;
-     * for (int i = 0; i < numLoops(); ++i) {
-     * int result = loop(i).containsOrCrosses(b);
-     * if (result < 0) {
-     * return -1; // The loop boundaries intersect.
-     * }
-     * if (result > 0) {
-     * inside ^= true;
-     * }
-     * }
-     * return inside ? 1 : 0; // True if loop B is contained by the polygon.
-     * }
-     *
-     * /** Return true if any loop contains the given loop. *#/
+     
+      // For each map entry, sorts the value list.
+    private static function sortValueLoops($loopMap) {
+        foreach ($loopMap as &$loop) {
+            sort($loop);
+        }
+    }
+
+    private static function insertLoop(S2Loop $newLoop, S2Loop $parent, $loopMap) {
+        $children = $loopMap[$parent];
+
+        if ($children == null) {
+            $children = [];
+            $loopMap[$parent] = $children;
+        }
+
+        foreach ($children as $child) {
+            if ($child->containsNested($newLoop)) {
+                $this->insertLoop($newLoop, $child, $loopMap);
+                return;
+            }
+        }
+     
+      // No loop may contain the complement of another loop. (Handling this case
+      // is significantly more complicated.)
+      // assert (parent == null || !newLoop.containsNested(parent));
+     
+      // Some of the children of the parent loop may now be children of
+      // the new loop.
+        $newChildren = $loopMap[$newLoop];
+        for ($i = 0; $i < count($children);) {
+            $child = $children[$i];
+            if ($newLoop->containsNested($child)) {
+                if ($newChildren == null) {
+                    $newChildren = [];
+                    $loopMap[$newLoop] = $newChildren;
+                }
+                $newChildren[] = $child;
+                unset($children[$i]);
+            } else {
+                ++$i;
+            }
+        }
+        $children[] = $newLoop;
+    }
+
+    private function initLoop(S2Loop $loop, $depth, $loopMap) {
+        if ($loop != null) {
+            $loop->setDepth($depth);
+            $this->loops->add($loop);
+        }
+        $children = $loopMap[$loop];
+        if ($children != null) {
+            foreach ($children as $child) {
+                $this->initLoop($child, $depth + 1, $loopMap);
+            }
+        }
+    }
+
+    private function containsOrCrosses(S2Loop $b) {
+        $inside = false;
+        for ($i = 0; $i < $this->numLoops(); ++$i) {
+            $result = $this->loop($i)->containsOrCrosses($b);
+            if ($result < 0) {
+                return -1; // The loop boundaries intersect.
+            }
+            if ($result > 0) {
+                $inside ^= true;
+            }
+        }
+        return $inside ? 1 : 0; // True if loop B is contained by the polygon.
+    }
+
+    /** Return true if any loop contains the given loop. *#/
      * private boolean anyLoopContains(S2Loop b) {
      * for (int i = 0; i < numLoops(); ++i) {
      * if (loop(i).contains(b)) {

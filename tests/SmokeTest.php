@@ -152,4 +152,10 @@ class SmokeTest extends PHPUnit_Framework_TestCase {
         $dist = self::GreatEarthDistance($loc_1, $s2ll);
         $this->assertEquals(212.99711509717, $dist);
     }
+
+    public function testPolygon() {
+        $S2Polygon = new S2Polygon();
+
+        $S2Polygon = new S2Polygon();
+    }
 }

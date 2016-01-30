@@ -6,8 +6,9 @@
 * polylines, loops, and general polygons.
 *
 */
+
 class S2EdgeUtil {
-/**
+    /**
 * IEEE floating-point operations have a maximum error of 0.5 ULPS (units in
 * the last place). For double-precision numbers, this works out to 2**-53
 * (about 1.11e-16) times the magnitude of the result. It is possible to

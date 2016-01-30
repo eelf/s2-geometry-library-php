@@ -1,56 +1,56 @@
 <?php
 
 class S2EdgeIndex {
-/**
+    /**
 * Thicken the edge in all directions by roughly 1% of the edge length when
 * thickenEdge is true.
 */
 const THICKENING = 0.01;
 
-/**
+    /**
 * Threshold for small angles, that help lenientCrossing to determine whether
 * two edges are likely to intersect.
 */
 const MAX_DET_ERROR = 1e-14;
 
-/**
+    /**
 * The cell containing each edge, as given in the parallel array
 * <code>edges</code>.
 */
 private $cells;
 
-/**
+    /**
 * The edge contained by each cell, as given in the parallel array
 * <code>cells</code>.
 */
 private $edges;
 
-/**
+    /**
 * No cell strictly below this level appears in mapping. Initially leaf level,
 * that's the minimum level at which we will ever look for test edges.
 */
 private $minimumS2LevelUsed;
 
-/**
+    /**
 * Has the index been computed already?
 */
 private $indexComputed;
 
-/**
+    /**
 * Number of queries so far
 */
 private $queryCount;
 
-/**
+    /**
 * Empties the index in case it already contained something.
 */
 public function reset() {
-    $this->minimumS2LevelUsed = S2CellId::MAX_LEVEL;
-    $this->indexComputed = false;
-    $this->queryCount = 0;
-    $this->cells = null;
-    $this->edges = null;
-}
+        $this->minimumS2LevelUsed = S2CellId::MAX_LEVEL;
+        $this->indexComputed = false;
+        $this->queryCount = 0;
+        $this->cells = null;
+        $this->edges = null;
+    }
 
     /**
      * Compares [cell1, edge1] to [cell2, edge2], by cell first and edge second.
@@ -62,20 +62,20 @@ public function reset() {
      * @return int -1 if [cell1, edge1] is less than [cell2, edge2], 1 if [cell1,
      */
 private static function compare($cell1, $edge1, $cell2, $edge2) {
-if ($cell1 < $cell2) {
-return -1;
-} else if ($cell1 > $cell2) {
-return 1;
-} else if ($edge1 < $edge2) {
-return -1;
-} else if ($edge1 > $edge2) {
-return 1;
-} else {
-return 0;
-}
-}
+        if ($cell1 < $cell2) {
+            return -1;
+        } else if ($cell1 > $cell2) {
+            return 1;
+        } else if ($edge1 < $edge2) {
+            return -1;
+        } else if ($edge1 > $edge2) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
 
-/** Computes the index (if it has not been previously done). *#/
+    /** Computes the index (if it has not been previously done). *#/
 public final function computeIndex() {
 if ($this->indexComputed) {
 return;
@@ -521,15 +521,16 @@ private function getEdgesInChildrenCells(S2Point a, S2Point b, List
         }
         }
 */
-            }
+}
 
-        /*
+/*
         * An iterator on data edges that may cross a query edge (a,b). Create the
         * iterator, call getCandidates(), then hasNext()/next() repeatedly.
         *
         * The current edge in the iteration has index index(), goes between from()
         * and to().
         */
+
 class DataEdgeIterator {
     /**
      * The structure containing the data edges.

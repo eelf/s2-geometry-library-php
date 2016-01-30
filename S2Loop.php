@@ -25,7 +25,7 @@
 class S2Loop implements S2Region {
 //private static final Logger log = Logger.getLogger(S2Loop.class.getCanonicalName());
 
-/**
+    /**
 * Max angle that intersections can be off by and yet still be considered
 * colinear.
 *#/

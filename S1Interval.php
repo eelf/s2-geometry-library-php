@@ -8,42 +8,30 @@ class S1Interval {
      * Both endpoints must be in the range -Pi to Pi inclusive. The value -Pi is
      * converted internally to Pi except for the Full() and Empty() intervals.
      */
-    public function __construct($lo, $hi, $checked = false) {
-        $newLo = $lo;
-        $newHi = $hi;
-        if (!$checked) {
-            if ($lo == -S2::M_PI && $hi != S2::M_PI) {
-                $newLo = S2::M_PI;
+    public function __construct($lo, $hi = null, $checked = false) {
+        if ($lo instanceof S1Interval) {
+            $this->lo = $lo->lo;
+            $this->hi = $lo->hi;
+        } else {
+            $newLo = $lo;
+            $newHi = $hi;
+            if (!$checked) {
+                if ($lo == -S2::M_PI && $hi != S2::M_PI) {
+                    $newLo = S2::M_PI;
+                }
+                if ($hi == -S2::M_PI && $lo != S2::M_PI) {
+                    $newHi = S2::M_PI;
+                }
             }
-            if ($hi == -S2::M_PI && $lo != S2::M_PI) {
-                $newHi = S2::M_PI;
-            }
+            $this->lo = $newLo;
+            $this->hi = $newHi;
         }
-        $this->lo = $newLo;
-        $this->hi = $newHi;
     }
 
-    /**
-     * Copy constructor. Assumes that the given interval is valid.
-     *
-     * TODO(dbeaumont): Make this class immutable and remove this method.
-     *#/
-     * public S1Interval(S1Interval interval) {
-     * this.lo = interval.lo;
-     * this.hi = interval.hi;
-     * }
-     *
-     * /**
-     * Internal constructor that assumes that both arguments are in the correct
-     * range, i.e. normalization from -Pi to Pi is already done.
-     *#/
-     * private S1Interval(double lo, double hi, boolean checked) {
-     * }
-     *
-     * public static S1Interval empty() {
-     * return new S1Interval(S2.M_PI, -S2.M_PI, true);
-     * }
-     */
+    public static function emptya() {
+        return new S1Interval(S2::M_PI, -S2::M_PI, true);
+    }
+
     public static function full() {
         return new S1Interval(-S2::M_PI, S2::M_PI, true);
     }
