@@ -1,10 +1,13 @@
 <?php
 
+namespace S2;
+
 /**
  * An abstract directed edge from one S2Point to another S2Point.
  */
 
-class S2Edge {
+class S2Edge
+{
     /** @var S2Point */
     private $start;
     /** @var S2Point */
@@ -14,7 +17,8 @@ class S2Edge {
      * @param S2Point $start
      * @param S2Point $end
      */
-    public function __construct($start, $end) {
+    public function __construct($start, $end)
+    {
         $this->start = $start;
         $this->end = $end;
     }
@@ -22,15 +26,18 @@ class S2Edge {
     /**
      * @return \S2Point
      */
-    public function getStart() {
+    public function getStart()
+    {
         return $this->start;
     }
 
-    public function getEnd() {
+    public function getEnd()
+    {
         return $this->end;
     }
 
-    public function toString() {
+    public function toString()
+    {
         return sprintf(
             "Edge: (%s -> %s)\n   or [%s -> %s]",
             $this->start->toDegreesString(),
@@ -40,11 +47,13 @@ class S2Edge {
         );
     }
 
-    public function hashCode() {
+    public function hashCode()
+    {
         return $this->getStart()->hashCode() - $this->getEnd()->hashCode();
     }
 
-    public function equals($o) {
+    public function equals($o)
+    {
         if ($o == null || !($o instanceof S2Edge)) {
             return false;
         }

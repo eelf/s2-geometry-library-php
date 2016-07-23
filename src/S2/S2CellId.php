@@ -1,6 +1,9 @@
 <?php
 
-class S2CellId {
+namespace S2;
+
+class S2CellId
+{
 
     // Although only 60 bits are needed to represent the index of a leaf
     // cell, we need an extra bit in order to represent the position of
@@ -54,12 +57,14 @@ class S2CellId {
      */
     public $id;
 
-    public function __construct($id = null) {
+    public function __construct($id = null)
+    {
         $this->id = $id !== null ? $id : 0;
     }
 
     /** The default constructor returns an invalid cell id. */
-    public static function none() {
+    public static function none()
+    {
         return new S2CellId();
     }
 
@@ -78,7 +83,8 @@ class S2CellId {
      * the returned cell. This is a static function rather than a constructor in
      * order to give names to the arguments.
      */
-    public static function fromFacePosLevel($face, $pos, $level) {
+    public static function fromFacePosLevel($face, $pos, $level)
+    {
         $s2cell = new S2CellId(($face << self::POS_BITS) + ($pos | 1));
         return $s2cell->parent($level);
     }
@@ -87,7 +93,8 @@ class S2CellId {
      * Return the leaf cell containing the given point (a direction vector, not
      * necessarily unit length).
      */
-    public static function fromPoint(S2Point $p) {
+    public static function fromPoint(S2Point $p)
+    {
         $face = S2Projections::xyzToFace($p);
         $uv = S2Projections::validFaceXyzToUv($face, $p);
         $i = self::stToIJ(S2Projections::uvToST($uv->x()));
@@ -108,7 +115,8 @@ class S2CellId {
      * Return the direction vector corresponding to the center of the given cell.
      * The vector returned by ToPointRaw is not necessarily unit length.
      */
-    public function toPointRaw() {
+    public function toPointRaw()
+    {
         // First we compute the discrete (i,j) coordinates of a leaf cell contained
         // within the given cell. Given that cells are represented by the Hilbert
         // curve position corresponding at their center, it turns out that the cell
@@ -145,12 +153,14 @@ class S2CellId {
     }
 
     /** Return the S2LatLng corresponding to the center of the given cell. */
-    public function toLatLng() {
+    public function toLatLng()
+    {
         return new S2LatLng($this->toPointRaw());
     }
 
     /** The 64-bit unique identifier for this cell. */
-    public function id() {
+    public function id()
+    {
         return $this->id;
     }
 
@@ -160,7 +170,8 @@ class S2CellId {
      * }
      *
      * /** Which cube face this cell belongs to, in the range 0..5. */
-    public function face() {
+    public function face()
+    {
         return $this->id >> self::POS_BITS & PHP_INT_MAX >> (self::POS_BITS - 1);
         /* >>> */
     }
@@ -169,13 +180,15 @@ class S2CellId {
      * The position of the cell center along the Hilbert curve over this face, in
      * the range 0..(2**kPosBits-1).
      */
-    public function pos() {
+    public function pos()
+    {
         return $this->id & (-1 >> self::FACE_BITS) & (PHP_INT_MAX >> (self::FACE_BITS - 1));
         /* >>> logical shift right */
     }
 
     /** Return the subdivision level of the cell (range 0..MAX_LEVEL). */
-    public function level() {
+    public function level()
+    {
         // Fast path for leaf cells.
         if ($this->isLeaf()) {
             return self::MAX_LEVEL;
@@ -211,7 +224,8 @@ class S2CellId {
      * Return true if this is a leaf cell (more efficient than checking whether
      * level() == MAX_LEVEL).
      */
-    public function isLeaf() {
+    public function isLeaf()
+    {
         return ($this->id & 1) != 0;
     }
 
@@ -219,7 +233,8 @@ class S2CellId {
      * Return true if this is a top-level face cell (more efficient than checking
      * whether level() == 0).
      */
-    public function isFace() {
+    public function isFace()
+    {
         return ($this->id & ($this->lowestOnBitForLevel(0) - 1)) == 0;
     }
 
@@ -247,16 +262,19 @@ class S2CellId {
      * // iterator would need to be tested using "<" rather that the usual "!=".
      * /*
      */
-    public function rangeMin() {
+    public function rangeMin()
+    {
         return new S2CellId($this->id - ($this->lowestOnBit() - 1));
     }
 
-    public function rangeMax() {
+    public function rangeMax()
+    {
         return new S2CellId($this->id + ($this->lowestOnBit() - 1));
     }
 
     /** Return true if the given cell is contained within this one. */
-    public function contains(S2CellId $other) {
+    public function contains(S2CellId $other)
+    {
         // assert (isValid() && other.isValid());
         return $other->greaterOrEquals($this->rangeMin()) && $other->lessOrEquals($this->rangeMax());
     }
@@ -268,14 +286,16 @@ class S2CellId {
      * && other.rangeMax().greaterOrEquals(rangeMin());
      * }
      */
-    public function parent($level = null) {
+    public function parent($level = null)
+    {
         // assert (isValid() && level() > 0);
         if ($level === null) $newLsb = $this->lowestOnBit() << 2;
         else $newLsb = self::lowestOnBitForLevel($level);
         return new S2CellId(($this->id & -$newLsb) | $newLsb);
     }
 
-    public function childBegin($level = null) {
+    public function childBegin($level = null)
+    {
         // assert (isValid() && level() < MAX_LEVEL);
         if ($level === null) {
             $oldLsb = $this->lowestOnBit();
@@ -292,7 +312,8 @@ class S2CellId {
     return new S2CellId(id + oldLsb + (oldLsb >>> 2));
   }
 */
-    public function childEnd($level) {
+    public function childEnd($level)
+    {
         // assert (isValid() && level >= this.level() && level <= MAX_LEVEL);
         return new S2CellId($this->id + $this->lowestOnBit() + $this->lowestOnBitForLevel($level));
     }
@@ -315,7 +336,8 @@ class S2CellId {
      * correctly when advancing from one face to the next, but does *not* wrap
      * around from the last face to the first or vice versa.
      */
-    public function next() {
+    public function next()
+    {
         return new S2CellId($this->id + ($this->lowestOnBit() << 1));
     }
 
@@ -374,7 +396,8 @@ class S2CellId {
      * @return S2CellId for that token
      * @throws NumberFormatException if the token is not formatted correctly
      */
-    public static function fromToken($token) {
+    public static function fromToken($token)
+    {
         if ($token == null) {
             throw new NumberFormatException("Null string in S2CellId.fromToken");
         }
@@ -508,7 +531,8 @@ class S2CellId {
      * Requires: level < this.evel(), so that we can determine which vertex is
      * closest (in particular, level == MAX_LEVEL is not allowed).
      */
-    public function getVertexNeighbors($level, &$output) {
+    public function getVertexNeighbors($level, &$output)
+    {
         // "level" must be strictly less than this cell's level so that we can
         // determine which vertex this cell is closest to.
         // assert (level < this.level());
@@ -607,7 +631,8 @@ class S2CellId {
      * Return a leaf cell given its cube face (range 0..5) and i- and
      * j-coordinates (see s2.h).
      */
-    public static function fromFaceIJ($face, $i, $j) {
+    public static function fromFaceIJ($face, $i, $j)
+    {
         // Optimization notes:
         // - Non-overlapping bit fields can be combined with either "+" or "|".
         // Generally "+" seems to produce better code, but not always.
@@ -639,7 +664,8 @@ class S2CellId {
         return $s;
     }
 
-    private static function getBits(&$n, $i, $j, $k, $bits) {
+    private static function getBits(&$n, $i, $j, $k, $bits)
+    {
         $mask = (1 << self::LOOKUP_BITS) - 1;
         $bits += ((($i >> ($k * self::LOOKUP_BITS)) & $mask) << (self::LOOKUP_BITS + 2));
         $bits += ((($j >> ($k * self::LOOKUP_BITS)) & $mask) << 2);
@@ -656,7 +682,8 @@ class S2CellId {
      * cell adjacent to the cell center. If "orientation" is non-NULL, also return
      * the Hilbert curve orientation for the current cell.
      */
-    public function toFaceIJOrientation(&$pi, &$pj, &$orientation = null) {
+    public function toFaceIJOrientation(&$pi, &$pj, &$orientation = null)
+    {
         // System.out.println("Entering toFaceIjorientation");
         $face = $this->face();
         $bits = ($face & self::SWAP_MASK);
@@ -694,7 +721,8 @@ class S2CellId {
         return $face;
     }
 
-    private function getBits1(&$i, &$j, $k, $bits) {
+    private function getBits1(&$i, &$j, $k, $bits)
+    {
         $nbits = ($k == 7) ? (self::MAX_LEVEL - 7 * self::LOOKUP_BITS) : self::LOOKUP_BITS;
 
         $shift = ($k * 2 * self::LOOKUP_BITS + 1);
@@ -720,7 +748,8 @@ class S2CellId {
     }
 
     /** Return the lowest-numbered bit that is on for cells at the given level. */
-    public function lowestOnBit() {
+    public function lowestOnBit()
+    {
         return $this->id & -$this->id;
     }
 
@@ -730,7 +759,8 @@ class S2CellId {
      * b.lsb() if and only if a.level() >= b.level(), but the first test is more
      * efficient.
      */
-    public static function lowestOnBitForLevel($level) {
+    public static function lowestOnBitForLevel($level)
+    {
         return 1 << (2 * (self::MAX_LEVEL - $level));
     }
 
@@ -738,7 +768,8 @@ class S2CellId {
      * Return the i- or j-index of the leaf cell containing the given s- or
      * t-value.
      */
-    private static function stToIJ($s) {
+    private static function stToIJ($s)
+    {
         // Converting from floating-point to integers via static_cast is very slow
         // on Intel processors because it requires changing the rounding mode.
         // Rounding to the nearest integer using FastIntRound() is much faster.
@@ -751,7 +782,8 @@ class S2CellId {
      * Convert (face, si, ti) coordinates (see s2.h) to a direction vector (not
      * necessarily unit length).
      */
-    private static function faceSiTiToXYZ($face, $si, $ti) {
+    private static function faceSiTiToXYZ($face, $si, $ti)
+    {
         $kScale = 1.0 / self::MAX_SIZE;
         $u = S2Projections::stToUV($kScale * $si);
         $v = S2Projections::stToUV($kScale * $ti);
@@ -762,7 +794,8 @@ class S2CellId {
      * Given (i, j) coordinates that may be out of bounds, normalize them by
      * returning the corresponding neighbor cell on an adjacent face.
      */
-    private static function fromFaceIJWrap($face, $i, $j) {
+    private static function fromFaceIJWrap($face, $i, $j)
+    {
         // Convert i and j to the coordinates of a leaf cell just beyond the
         // boundary of this face. This prevents 32-bit overflow in the case
         // of finding the neighbors of a face cell, and also means that we
@@ -788,7 +821,8 @@ class S2CellId {
      * Public helper function that calls FromFaceIJ if sameFace is true, or
      * FromFaceIJWrap if sameFace is false.
      */
-    public static function fromFaceIJSame($face, $i, $j, $sameFace) {
+    public static function fromFaceIJSame($face, $i, $j, $sameFace)
+    {
         if ($sameFace) {
             return S2CellId::fromFaceIJ($face, $i, $j);
         } else {
@@ -796,7 +830,8 @@ class S2CellId {
         }
     }
 
-    public function equals($that) {
+    public function equals($that)
+    {
         if (!($that instanceof S2CellId)) {
             return false;
         }
@@ -815,7 +850,8 @@ class S2CellId {
   /**
    * Returns true if x1 > x2, when both values are treated as unsigned.
    */
-    public static function unsignedLongGreaterThan($x1, $x2) {
+    public static function unsignedLongGreaterThan($x1, $x2)
+    {
         return ($x1 & ~PHP_INT_MAX) > ($x2 & ~PHP_INT_MAX);
     }
 
@@ -829,11 +865,13 @@ class S2CellId {
   }
    */
 
-    public function lessOrEquals(S2CellId $x) {
+    public function lessOrEquals(S2CellId $x)
+    {
         return $this->unsignedLongLessThan($this->id, $x->id) || $this->id == $x->id;
     }
 
-    public function greaterOrEquals(S2CellId $x) {
+    public function greaterOrEquals(S2CellId $x)
+    {
         return $this->unsignedLongGreaterThan($this->id, $x->id) || $this->id == $x->id;
     }
 
@@ -844,11 +882,13 @@ class S2CellId {
   }
 
 */
-    public function __toString() {
+    public function __toString()
+    {
         return sprintf("(face=%d, pos=%16x, level=%d)", $this->face(), $this->pos(), $this->level());
     }
 
-    public static function initLookupCell($level, $i, $j, $origOrientation, $pos, $orientation) {
+    public static function initLookupCell($level, $i, $j, $origOrientation, $pos, $orientation)
+    {
         if ($level == self::LOOKUP_BITS) {
             $ij = ($i << self::LOOKUP_BITS) + $j;
             self::$LOOKUP_POS[($ij << 2) + $origOrientation] = ($pos << 2) + $orientation;

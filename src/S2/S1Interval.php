@@ -1,6 +1,9 @@
 <?php
 
-class S1Interval {
+namespace S2;
+
+class S1Interval
+{
     private $lo;
     private $hi;
 
@@ -8,7 +11,8 @@ class S1Interval {
      * Both endpoints must be in the range -Pi to Pi inclusive. The value -Pi is
      * converted internally to Pi except for the Full() and Empty() intervals.
      */
-    public function __construct($lo, $hi = null, $checked = false) {
+    public function __construct($lo, $hi = null, $checked = false)
+    {
         if ($lo instanceof S1Interval) {
             $this->lo = $lo->lo;
             $this->hi = $lo->hi;
@@ -28,11 +32,13 @@ class S1Interval {
         }
     }
 
-    public static function emptya() {
+    public static function emptya()
+    {
         return new S1Interval(S2::M_PI, -S2::M_PI, true);
     }
 
-    public static function full() {
+    public static function full()
+    {
         return new S1Interval(-S2::M_PI, S2::M_PI, true);
     }
 
@@ -49,7 +55,8 @@ class S1Interval {
      * given points. This is equivalent to starting with an empty interval and
      * calling AddPoint() twice, but it is more efficient.
      */
-    public static function fromPointPair($p1, $p2) {
+    public static function fromPointPair($p1, $p2)
+    {
 // assert (Math.abs(p1) <= S2.M_PI && Math.abs(p2) <= S2.M_PI);
         if ($p1 == -S2::M_PI) {
             $p1 = S2::M_PI;
@@ -64,11 +71,13 @@ class S1Interval {
         }
     }
 
-    public function lo() {
+    public function lo()
+    {
         return $this->lo;
     }
 
-    public function hi() {
+    public function hi()
+    {
         return $this->hi;
     }
 
@@ -88,12 +97,14 @@ class S1Interval {
      *
      *
      * /** Return true if the interval is empty, i.e. it contains no points. */
-    public function isEmpty() {
+    public function isEmpty()
+    {
         return $this->lo() - $this->hi() == 2 * S2::M_PI;
     }
 
     /* Return true if lo() > hi(). (This is true for empty intervals.) */
-    public function isInverted() {
+    public function isInverted()
+    {
         return $this->lo() > $this->hi();
     }
 
@@ -101,7 +112,8 @@ class S1Interval {
      * Return the midpoint of the interval. For full and empty intervals, the
      * result is arbitrary.
      */
-    public function getCenter() {
+    public function getCenter()
+    {
         $center = 0.5 * ($this->lo() + $this->hi());
         if (!$this->isInverted()) {
             return $center;
@@ -114,7 +126,8 @@ class S1Interval {
      * Return the length of the interval. The length of an empty interval is
      * negative.
      */
-    public function getLength() {
+    public function getLength()
+    {
         $length = $this->hi() - $this->lo();
         if ($length >= 0) {
             return $length;
@@ -224,7 +237,8 @@ class S1Interval {
      * the point +/-Pi has two representations, so the intervals [-Pi,-3] and
      * [2,Pi] intersect, for example.
      */
-    public function intersects(S1Interval $y) {
+    public function intersects(S1Interval $y)
+    {
         if ($this->isEmpty() || $y->isEmpty()) {
             return false;
         }
@@ -292,7 +306,8 @@ class S1Interval {
      * a point in this interval. Note that the expansion of an empty interval is
      * always empty. The radius must be non-negative.
      */
-    public function expanded($radius) {
+    public function expanded($radius)
+    {
 // assert (radius >= 0);
         if ($this->isEmpty()) {
             return this;
@@ -446,7 +461,8 @@ class S1Interval {
      * it is more numerically stable (it does not lose precision for very small
      * positive distances).
      */
-    public static function positiveDistance($a, $b) {
+    public static function positiveDistance($a, $b)
+    {
         $d = $b - $a;
         if ($d >= 0) {
             return $d;

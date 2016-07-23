@@ -1,8 +1,11 @@
 <?php
 
+namespace S2;
+
 define('ROUND_UP', 1.0 + 1.0 / (1 << 52));
 
-class S2Cap implements S2Region {
+class S2Cap implements S2Region
+{
     /**
      * Multiply a positive number by this constant to ensure that the result of a
      * floating point operation is at least as large as the true
@@ -15,7 +18,8 @@ class S2Cap implements S2Region {
 
     // Caps may be constructed from either an axis and a height, or an axis and
     // an angle. To avoid ambiguity, there are no public constructors
-    private function __construct(S2Point $axis = null, $height = null) {
+    private function __construct(S2Point $axis = null, $height = null)
+    {
         if ($axis === null || $height === null) {
             $this->axis = new S2Point();
             $this->height = 0;
@@ -40,7 +44,8 @@ class S2Cap implements S2Region {
      * between the axis and a point on the cap. 'axis' should be a unit-length
      * vector, and 'angle' should be between 0 and 180 degrees.
      */
-    public static function fromAxisAngle(S2Point $axis, S1Angle $angle) {
+    public static function fromAxisAngle(S2Point $axis, S1Angle $angle)
+    {
         // The height of the cap can be computed as 1-cos(angle), but this isn't
         // very accurate for angles close to zero (where cos(angle) is almost 1).
         // Computing it as 2*(sin(angle/2)**2) gives much better precision.
@@ -60,7 +65,8 @@ class S2Cap implements S2Region {
 //  }
 
     /** Return an empty cap, i.e. a cap that contains no points. */
-    public static function sempty() {
+    public static function sempty()
+    {
         return new S2Cap(new S2Point(1, 0, 0), -1);
     }
 
@@ -68,18 +74,20 @@ class S2Cap implements S2Region {
      * public static S2Cap full() {
      * return new S2Cap(new S2Point(1, 0, 0), 2);
      * }
-
      */
     // Accessor methods.
-    public function axis() {
+    public function axis()
+    {
         return $this->axis;
     }
 
-    public function height() {
+    public function height()
+    {
         return $this->height;
     }
 
-    public function area() {
+    public function area()
+    {
         return 2 * S2::M_PI * max(0.0, $this->height);
     }
 
@@ -87,7 +95,8 @@ class S2Cap implements S2Region {
      * Return the cap opening angle in radians, or a negative number for empty
      * caps.
      */
-    public function angle() {
+    public function angle()
+    {
         // This could also be computed as acos(1 - height_), but the following
         // formula is much more accurate when the cap height is small. It
         // follows from the relationship h = 1 - cos(theta) = 2 sin^2(theta/2).
@@ -106,7 +115,8 @@ class S2Cap implements S2Region {
      * }
      *
      * /** Return true if the cap is empty, i.e. it contains no points. */
-    public function isEmpty() {
+    public function isEmpty()
+    {
         return $this->height < 0;
     }
 
@@ -166,7 +176,8 @@ class S2Cap implements S2Region {
      * is empty the axis is set to the given point, but otherwise it is left
      * unchanged. 'p' should be a unit-length vector.
      */
-    public function addPoint(S2Point $p) {
+    public function addPoint(S2Point $p)
+    {
         // Compute the squared chord length, then convert it into a height.
         // assert (S2.isUnitLength(p));
         if ($this->isEmpty()) {
@@ -205,11 +216,13 @@ class S2Cap implements S2Region {
   // //////////////////////////////////////////////////////////////////////
   // S2Region interface (see {@code S2Region} for details):
    * */
-    public function getCapBound() {
+    public function getCapBound()
+    {
         return $this;
     }
 
-    public function getRectBound() {
+    public function getRectBound()
+    {
         if ($this->isEmpty()) {
             return S2LatLngRect::emptya();
         }
@@ -265,7 +278,8 @@ class S2Cap implements S2Region {
         );
     }
 
-    public function contains($cell) {
+    public function contains($cell)
+    {
         // If the cap does not contain all cell vertices, return false.
         // We check the vertices before taking the Complement() because we can't
         // accurately represent the complement of a very small cap (a height
@@ -283,7 +297,8 @@ class S2Cap implements S2Region {
         return !$this->complement()->intersects($cell, $vertices);
     }
 
-    public function mayIntersect(S2Cell $cell) {
+    public function mayIntersect(S2Cell $cell)
+    {
         // If the cap contains any cell vertex, return true.
         $vertices = array();
         for ($k = 0; $k < 4; ++$k) {

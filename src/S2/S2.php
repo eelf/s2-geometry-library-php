@@ -1,5 +1,7 @@
 <?php
 
+namespace S2;
+
 class S2 {
     public static function IEEERemainder($dividend, $divisor) {
         return $dividend - ($divisor * round($dividend / $divisor));
