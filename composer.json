@@ -1,0 +1,6 @@
+{
+    "name": "norzechowicz/s2-geometry-library-php",
+    "description": "Fork - Port of s2-geometry-library-java into PHP",
+    "type": "library",
+    "require": {}
+}
