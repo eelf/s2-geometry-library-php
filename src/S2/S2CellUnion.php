@@ -1,6 +1,9 @@
 <?php
 
-class S2CellUnion {
+namespace S2;
+
+class S2CellUnion
+{
     /** The CellIds that form the Union
      * @var S2CellId[]
      */
@@ -23,7 +26,8 @@ class S2CellUnion {
     normalize();
   }
 */
-    public function initSwap($cellIds) {
+    public function initSwap($cellIds)
+    {
         $this->initRawSwap($cellIds);
         $this->normalize();
     }
@@ -48,12 +52,14 @@ class S2CellUnion {
    * useful when converting cell unions to another representation and back.
    * These methods may be called multiple times.
    */
-    public function initRawSwap($cellIds) {
+    public function initRawSwap($cellIds)
+    {
         $this->cellIds = $cellIds;
 //    cellIds.clear();
     }
 
-    public function size() {
+    public function size()
+    {
         return count($this->cellIds);
     }
 
@@ -85,7 +91,8 @@ class S2CellUnion {
      * converted back to the original list of cell ids that satisfies the desired
      * constraints.
      */
-    public function denormalize($minLevel, $levelMod, &$output) {
+    public function denormalize($minLevel, $levelMod, &$output)
+    {
         // assert (minLevel >= 0 && minLevel <= S2CellId.MAX_LEVEL);
         // assert (levelMod >= 1 && levelMod <= 3);
 
@@ -528,7 +535,8 @@ class S2CellUnion {
      * @return true if the normalize operation had any effect on the cell union,
      *         false if the union was already normalized
      */
-    public function normalize() {
+    public function normalize()
+    {
         // Optimize the representation by looking for cases where all subcells
         // of a parent cell are present.
 
@@ -573,7 +581,8 @@ class S2CellUnion {
                 $idMasked = ($id->id() & $mask);
                 if (($output[$size - 3]->id() & $mask) != $idMasked
                     || ($output[$size - 2]->id() & $mask) != $idMasked
-                    || ($output[$size - 1]->id() & $mask) != $idMasked || $id->isFace()) {
+                    || ($output[$size - 1]->id() & $mask) != $idMasked || $id->isFace()
+                ) {
                     break;
                 }
 

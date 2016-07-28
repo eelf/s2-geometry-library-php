@@ -1,6 +1,9 @@
 <?php
 
-class S2Projections {
+namespace S2;
+
+class S2Projections
+{
     const S2_LINEAR_PROJECTION = 1;
     const S2_TAN_PROJECTION = 2;
     const S2_QUADRATIC_PROJECTION = 3;
@@ -72,7 +75,8 @@ class S2Projections {
     // The width is useful for bounding the minimum or maximum distance from a
     // point on one edge of a cell to the closest point on the opposite edge.
     // For example, this is useful when "growing" regions by a fixed distance.
-    public static function MIN_WIDTH() {
+    public static function MIN_WIDTH()
+    {
         if (self::S2_PROJECTION == self::S2_LINEAR_PROJECTION) $deriv = 1 / sqrt(6);
         else if (self::S2_PROJECTION == self::S2_TAN_PROJECTION) $deriv = S2::M_PI / (4 * S2::M_SQRT2);
         else if (self::S2_PROJECTION == self::S2_QUADRATIC_PROJECTION) $deriv = S2::M_SQRT2 / 3;
@@ -152,7 +156,8 @@ class S2Projections {
   // longest diagonal length to its shortest diagonal length.
   public static final double MAX_DIAG_ASPECT = Math.sqrt(3); // 1.732
 */
-    public static function stToUV($s) {
+    public static function stToUV($s)
+    {
         switch (self::S2_PROJECTION) {
             case self::S2_LINEAR_PROJECTION:
                 return $s;
@@ -181,7 +186,8 @@ class S2Projections {
         }
     }
 
-    public static function uvToST($u) {
+    public static function uvToST($u)
+    {
         switch (self::S2_PROJECTION) {
             case self::S2_LINEAR_PROJECTION:
                 return $u;
@@ -204,7 +210,8 @@ class S2Projections {
      * Convert (face, u, v) coordinates to a direction vector (not necessarily
      * unit length).
      */
-    public static function faceUvToXyz($face, $u, $v) {
+    public static function faceUvToXyz($face, $u, $v)
+    {
         switch ($face) {
             case 0:
                 return new S2Point(1, $u, $v);
@@ -226,7 +233,8 @@ class S2Projections {
         }
     }
 
-    public static function validFaceXyzToUv($face, S2Point $p) {
+    public static function validFaceXyzToUv($face, S2Point $p)
+    {
         // assert (p.dotProd(faceUvToXyz(face, 0, 0)) > 0);
         switch ($face) {
             case 0:
@@ -262,7 +270,8 @@ class S2Projections {
         return new R2Vector($pu, $pv);
     }
 
-    public static function xyzToFace(S2Point $p) {
+    public static function xyzToFace(S2Point $p)
+    {
         $face = $p->largestAbsComponent();
         if ($p->get($face) < 0) {
             $face += 3;
@@ -322,7 +331,8 @@ class S2Projections {
     return faceUvToXyz(face, 0, 0);
   }
 */
-    public static function getUAxis($face) {
+    public static function getUAxis($face)
+    {
         switch ($face) {
             case 0:
                 return new S2Point(0, 1, 0);
@@ -344,7 +354,8 @@ class S2Projections {
         }
     }
 
-    public static function getVAxis($face) {
+    public static function getVAxis($face)
+    {
         switch ($face) {
             case 0:
                 return new S2Point(0, 0, 1);

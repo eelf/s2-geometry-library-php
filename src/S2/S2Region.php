@@ -1,6 +1,9 @@
 <?php
 
-interface S2Region {
+namespace S2;
+
+interface S2Region
+{
     /** Return a bounding spherical cap.
      * @return S2Cap
      */

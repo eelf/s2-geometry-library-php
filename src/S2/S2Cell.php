@@ -1,9 +1,13 @@
 <?php
+
+namespace S2;
+
 define('MAX_CELL_SIZE', 1 << S2CellId::MAX_LEVEL);
 define('MAX_ERROR', 1.0 / (1 << 51));
 define('POLE_MIN_LAT', asin(sqrt(1.0 / 3.0)) - MAX_ERROR);
 
-class S2Cell implements S2Region {
+class S2Cell implements S2Region
+{
     const MAX_CELL_SIZE = MAX_CELL_SIZE;
 
     private $face;
@@ -16,7 +20,8 @@ class S2Cell implements S2Region {
     /**
      * Default constructor used only internally.
      */
-    public function __construct($p = null) {
+    public function __construct($p = null)
+    {
         if ($p instanceof S2Point) {
             $this->init(S2CellId::fromPoint($p));
         } else if ($p instanceof S2LatLng) {
@@ -27,19 +32,23 @@ class S2Cell implements S2Region {
     }
 
     // This is a static method in order to provide named parameters.*/
-    public static function fromFacePosLevel($face, $pos, $level) {
+    public static function fromFacePosLevel($face, $pos, $level)
+    {
         return new S2Cell(S2CellId::fromFacePosLevel($face, $pos, $level));
     }
 
-    public function id() {
+    public function id()
+    {
         return $this->cellId;
     }
 
-    public function face() {
+    public function face()
+    {
         return $this->face;
     }
 
-    public function level() {
+    public function level()
+    {
         return $this->level;
     }
     /*
@@ -97,7 +106,8 @@ class S2Cell implements S2Region {
      * except that it is more than two times faster.
      * @param S2Cell[] $children
      */
-    public function subdivide(&$children) {
+    public function subdivide(&$children)
+    {
         // This function is equivalent to just iterating over the child cell ids
         // and calling the S2Cell constructor, but it is about 2.5 times faster.
 
@@ -151,7 +161,8 @@ class S2Cell implements S2Region {
      * at which it is recursively subdivided into four children; in general, it is
      * not at the midpoint of the (u,v) rectangle covered by the cell
      */
-    public function getCenterUV() {
+    public function getCenterUV()
+    {
         $i = 0;
         $j = 0;
         $null = null;
@@ -238,9 +249,9 @@ class S2Cell implements S2Region {
      *
      * return clone;
      * }
-
      */
-    public function getCapBound() {
+    public function getCapBound()
+    {
         // Use the cell center in (u,v)-space as the cap axis. This vector is
         // very close to GetCenter() and faster to compute. Neither one of these
         // vectors yields the bounding cap with minimal surface area, but they
@@ -273,7 +284,8 @@ class S2Cell implements S2Region {
 
     // 35.26 degrees
 
-    public function getRectBound() {
+    public function getRectBound()
+    {
         if ($this->level > 0) {
             // Except for cells at level 0, the latitude and longitude extremes are
             // attained at the vertices. Furthermore, the latitude range is
@@ -342,11 +354,13 @@ class S2Cell implements S2Region {
         }
     }
 
-    public function mayIntersect(S2Cell $cell) {
+    public function mayIntersect(S2Cell $cell)
+    {
         return $this->cellId->intersects($cell->cellId);
     }
 
-    public function contains($p) {
+    public function contains($p)
+    {
         // We can't just call XYZtoFaceUV, because for points that lie on the
         // boundary between two faces (i.e. u or v is +1/-1) we need to return
         // true for both adjacent cells.
@@ -362,7 +376,8 @@ class S2Cell implements S2Region {
         }
     }
 
-    private function init(S2CellId $id) {
+    private function init(S2CellId $id)
+    {
         $this->cellId = $id;
         $ij = array(0, 0);
         $mOrientation = 0;
@@ -384,12 +399,14 @@ class S2Cell implements S2Region {
 
     // Internal method that does the actual work in the constructors.
 
-    private function getLatitude($i, $j) {
+    private function getLatitude($i, $j)
+    {
         $p = S2Projections::faceUvToXyz($this->face, $this->uv[0][$i], $this->uv[1][$j]);
         return atan2($p->z, sqrt($p->x * $p->x + $p->y * $p->y));
     }
 
-    private function getLongitude($i, $j) {
+    private function getLongitude($i, $j)
+    {
         $p = S2Projections::faceUvToXyz($this->face, $this->uv[0][$i], $this->uv[1][$j]);
         return atan2($p->y, $p->x);
     }
@@ -399,7 +416,8 @@ class S2Cell implements S2Region {
   // where "i" and "j" are either 0 or 1.
 
 */
-    public function __toString() {
+    public function __toString()
+    {
         return sprintf("[%d, %d, %d, %s]", $this->face, $this->level, $this->orientation, $this->cellId);
     }
     /*

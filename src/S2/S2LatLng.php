@@ -1,6 +1,9 @@
 <?php
 
-class S2LatLng {
+namespace S2;
+
+class S2LatLng
+{
     const EARTH_RADIUS_METERS = 6367000.0;
 
     /** @var double */
@@ -13,7 +16,8 @@ class S2LatLng {
      * @param $lngRadians
      * @return S2LatLng
      */
-    public static function fromRadians($latRadians, $lngRadians) {
+    public static function fromRadians($latRadians, $lngRadians)
+    {
         return new S2LatLng($latRadians, $lngRadians);
     }
 
@@ -22,23 +26,28 @@ class S2LatLng {
      * @param double $lngDegrees
      * @return S2LatLng
      */
-    public static function fromDegrees($latDegrees, $lngDegrees) {
+    public static function fromDegrees($latDegrees, $lngDegrees)
+    {
         return new S2LatLng(S1Angle::sdegrees($latDegrees), S1Angle::sdegrees($lngDegrees));
     }
 
-    public static function fromE5($latE5, $lngE5) {
+    public static function fromE5($latE5, $lngE5)
+    {
         return new S2LatLng(S1Angle::se5($latE5), S1Angle::se5($lngE5));
     }
 
-    public static function fromE6($latE6, $lngE6) {
+    public static function fromE6($latE6, $lngE6)
+    {
         return new S2LatLng(S1Angle::se6($latE6), S1Angle::se6($lngE6));
     }
 
-    public static function fromE7($latE7, $lngE7) {
+    public static function fromE7($latE7, $lngE7)
+    {
         return new S2LatLng(S1Angle::se7($latE7), S1Angle::se7($lngE7));
     }
 
-    public static function latitude(S2Point $p) {
+    public static function latitude(S2Point $p)
+    {
         // We use atan2 rather than asin because the input vector is not necessarily
         // unit length, and atan2 is much more accurate than asin near the poles.
         return S1Angle::sradians(
@@ -49,7 +58,8 @@ class S2LatLng {
         );
     }
 
-    public static function longitude(S2Point $p) {
+    public static function longitude(S2Point $p)
+    {
         // Note that atan2(0, 0) is defined to be zero.
         return S1Angle::sradians(atan2($p->get(1), $p->get(0)));
     }
@@ -59,7 +69,8 @@ class S2LatLng {
      * @param double|S1Angle $latRadians
      * @param double|S1Angle $lngRadians
      */
-    public function __construct($latRadians = null, $lngRadians = null) {
+    public function __construct($latRadians = null, $lngRadians = null)
+    {
         if ($latRadians instanceof S1Angle && $lngRadians instanceof S1Angle) {
             $this->latRadians = $latRadians->radians();
             $this->lngRadians = $lngRadians->radians();
@@ -76,32 +87,38 @@ class S2LatLng {
     }
 
     /** Returns the latitude of this point as a new S1Angle. */
-    public function lat() {
+    public function lat()
+    {
         return S1Angle::sradians($this->latRadians);
     }
 
     /** Returns the latitude of this point as radians. */
-    public function latRadians() {
+    public function latRadians()
+    {
         return $this->latRadians;
     }
 
     /** Returns the latitude of this point as degrees. */
-    public function latDegrees() {
+    public function latDegrees()
+    {
         return 180.0 / M_PI * $this->latRadians;
     }
 
     /** Returns the longitude of this point as a new S1Angle. */
-    public function lng() {
+    public function lng()
+    {
         return S1Angle::sradians($this->lngRadians);
     }
 
     /** Returns the longitude of this point as radians. */
-    public function lngRadians() {
+    public function lngRadians()
+    {
         return $this->lngRadians;
     }
 
     /** Returns the longitude of this point as degrees. */
-    public function lngDegrees() {
+    public function lngDegrees()
+    {
         return 180.0 / M_PI * $this->lngRadians;
     }
 
@@ -135,7 +152,8 @@ class S2LatLng {
      * // the range [-180, 180].
      *
      * /** Convert an S2LatLng to the equivalent unit-length vector (S2Point). */
-    public function toPoint() {
+    public function toPoint()
+    {
         $phi = $this->lat()->radians();
         $theta = $this->lng()->radians();
         $cosphi = cos($phi);
@@ -209,7 +227,8 @@ class S2LatLng {
      * Scales this point by the given scaling factor.
      * Note that there is no guarantee that the new point will be <em>valid</em>.
      */
-    public function mul($m) {
+    public function mul($m)
+    {
         // TODO(dbeaumont): Maybe check that m >= 0 ?
         return new S2LatLng($this->latRadians * $m, $this->lngRadians * $m);
     }
@@ -250,11 +269,13 @@ class S2LatLng {
     return approxEquals(o, 1e-9);
   }
 */
-    public function __toString() {
+    public function __toString()
+    {
         return "(" . $this->latRadians . ", " . $this->lngRadians . ")";
     }
 
-    public function toStringDegrees() {
+    public function toStringDegrees()
+    {
         return "(" . $this->latDegrees() . ", " . $this->lngDegrees() . ")";
     }
 }

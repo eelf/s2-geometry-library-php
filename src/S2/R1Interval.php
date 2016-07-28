@@ -1,11 +1,15 @@
 <?php
 
-class R1Interval {
+namespace S2;
+
+class R1Interval
+{
     private $lo;
     private $hi;
 
     /** Interval constructor. If lo > hi, the interval is empty. */
-    public function __construct($lo, $hi) {
+    public function __construct($lo, $hi)
+    {
         $this->lo = $lo;
         $this->hi = $hi;
     }
@@ -14,14 +18,16 @@ class R1Interval {
      * Returns an empty interval. (Any interval where lo > hi is considered
      * empty.)
      */
-    public static function emptya() {
+    public static function emptya()
+    {
         return new R1Interval(1, 0);
     }
 
     /**
      * Convenience method to construct an interval containing a single point.
      */
-    public static function fromPoint($p) {
+    public static function fromPoint($p)
+    {
         return new R1Interval($p, $p);
     }
 
@@ -30,7 +36,8 @@ class R1Interval {
      * given points. This is equivalent to starting with an empty interval and
      * calling AddPoint() twice, but it is more efficient.
      */
-    public static function fromPointPair($p1, $p2) {
+    public static function fromPointPair($p1, $p2)
+    {
         if ($p1 <= $p2) {
             return new R1Interval($p1, $p2);
         } else {
@@ -38,18 +45,21 @@ class R1Interval {
         }
     }
 
-    public function lo() {
+    public function lo()
+    {
         return $this->lo;
     }
 
-    public function hi() {
+    public function hi()
+    {
         return $this->hi;
     }
 
     /**
      * Return true if the interval is empty, i.e. it contains no points.
      */
-    public function isEmpty() {
+    public function isEmpty()
+    {
         return $this->lo() > $this->hi();
     }
 
@@ -57,7 +67,8 @@ class R1Interval {
      * Return the center of the interval. For empty intervals, the result is
      * arbitrary.
      */
-    public function getCenter() {
+    public function getCenter()
+    {
         return 0.5 * ($this->lo() + $this->hi());
     }
 
@@ -65,12 +76,14 @@ class R1Interval {
      * Return the length of the interval. The length of an empty interval is
      * negative.
      */
-    public function getLength() {
+    public function getLength()
+    {
         return $this->hi() - $this->lo();
     }
 
     /** Return true if this interval contains the interval 'y'. */
-    public function contains($p) {
+    public function contains($p)
+    {
         if ($p instanceof R1Interval) {
             $y = $p;
             if ($y->isEmpty()) {
@@ -85,7 +98,8 @@ class R1Interval {
      * Return true if the interior of this interval contains the entire interval
      * 'y' (including its boundary).
      */
-    public function interiorContains($p) {
+    public function interiorContains($p)
+    {
         if ($p instanceof R1Interval) {
             $y = $p;
             if ($y->isEmpty()) {
@@ -100,7 +114,8 @@ class R1Interval {
      * Return true if this interval intersects the given interval, i.e. if they
      * have any points in common.
      */
-    public function intersects(R1Interval $y) {
+    public function intersects(R1Interval $y)
+    {
         if ($this->lo() <= $y->lo()) {
             return $y->lo() <= $this->hi() && $y->lo() <= $y->hi();
         } else {
@@ -112,12 +127,14 @@ class R1Interval {
      * Return true if the interior of this interval intersects any point of the
      * given interval (including its boundary).
      */
-    public function interiorIntersects(R1Interval $y) {
+    public function interiorIntersects(R1Interval $y)
+    {
         return $y->lo() < $this->hi() && $this->lo() < $y->hi() && $this->lo() < $this->hi() && $y->lo() <= $y->hi();
     }
 
     /** Expand the interval so that it contains the given point "p". */
-    public function addPoint($p) {
+    public function addPoint($p)
+    {
         if (isEmpty()) {
             return R1Interval::fromPoint($p);
         } else if ($p < $this->lo()) {
@@ -134,7 +151,8 @@ class R1Interval {
      * point in this interval. Note that the expansion of an empty interval is
      * always empty.
      */
-    public function expanded($radius) {
+    public function expanded($radius)
+    {
 // assert (radius >= 0);
         if ($this->isEmpty()) {
             return $this;
@@ -146,7 +164,8 @@ class R1Interval {
      * Return the smallest interval that contains this interval and the given
      * interval "y".
      */
-    public function union(R1Interval $y) {
+    public function union(R1Interval $y)
+    {
         if ($this->isEmpty()) {
             return $y;
         }
@@ -160,11 +179,13 @@ class R1Interval {
      * Return the intersection of this interval with the given interval. Empty
      * intervals do not need to be special-cased.
      */
-    public function intersection(R1Interval $y) {
+    public function intersection(R1Interval $y)
+    {
         return new R1Interval(max($this->lo(), $y->lo()), min($this->hi(), $y->hi()));
     }
 
-    public function equals($that) {
+    public function equals($that)
+    {
         if ($that instanceof R1Interval) {
             $y = $that;
 // Return true if two intervals contain the same set of points.
@@ -173,7 +194,8 @@ class R1Interval {
         return false;
     }
 
-    public function hashCode() {
+    public function hashCode()
+    {
         if (isEmpty()) {
             return 17;
         }
@@ -189,7 +211,8 @@ class R1Interval {
      * is at most the given tolerance.
      *
      */
-    public function approxEquals(R1Interval $y, $maxError = null) {
+    public function approxEquals(R1Interval $y, $maxError = null)
+    {
         if ($maxError === null) {
             return $this->approxEquals($y, 1e-15);
         }
@@ -202,7 +225,8 @@ class R1Interval {
         return abs($y->lo() - $this->lo()) + abs($y->hi() - $this->hi()) <= $maxError;
     }
 
-    public function toString() {
+    public function toString()
+    {
         return "[" . $this->lo() . ", " . $this->hi() . "]";
     }
 }

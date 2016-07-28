@@ -1,6 +1,9 @@
 <?php
 
-class S2LatLngRect implements S2Region {
+namespace S2;
+
+class S2LatLngRect implements S2Region
+{
     /** @var \R1Interval */
     private $lat;
     /** @var \S1Interval */
@@ -10,7 +13,8 @@ class S2LatLngRect implements S2Region {
      * Construct a rectangle from minimum and maximum latitudes and longitudes. If
      * lo.lng() > hi.lng(), the rectangle spans the 180 degree longitude line.
      */
-    public function __construct($lo, $hi) {
+    public function __construct($lo, $hi)
+    {
         if ($lo instanceof S2LatLng && $hi instanceof S2LatLng) {
             $this->lat = new R1Interval($lo->lat()->radians(), $hi->lat()->radians());
             $this->lng = new S1Interval($lo->lng()->radians(), $hi->lng()->radians());
@@ -22,17 +26,20 @@ class S2LatLngRect implements S2Region {
     }
 
     /** The canonical empty rectangle */
-    public static function emptya() {
+    public static function emptya()
+    {
         return new S2LatLngRect(R1Interval::emptya(), S1Interval::emptya());
     }
 
     /** The canonical full rectangle. */
-    public static function full() {
+    public static function full()
+    {
         return new S2LatLngRect(self::fullLat(), self::fullLng());
     }
 
     /** The full allowable range of latitudes. */
-    public static function fullLat() {
+    public static function fullLat()
+    {
         return new R1Interval(-S2::M_PI_2, S2::M_PI_2);
     }
 
@@ -50,12 +57,14 @@ class S2LatLngRect implements S2Region {
      * FromCenterSize((80,170),(20,20)) -> (lo=(60,150),hi=(90,-170)).
      * @return S2LatLngRect
      */
-    public static function fromCenterSize(S2LatLng $center, S2LatLng $size) {
+    public static function fromCenterSize(S2LatLng $center, S2LatLng $size)
+    {
         return self::fromPoint($center)->expanded($size->mul(0.5));
     }
 
     /** Convenience method to construct a rectangle containing a single point. */
-    public static function fromPoint(S2LatLng $p) {
+    public static function fromPoint(S2LatLng $p)
+    {
         // assert (p.isValid());
         return new S2LatLngRect($p, $p);
     }
@@ -119,19 +128,23 @@ class S2LatLngRect implements S2Region {
 //  }
 
     // Accessor methods.
-    public function latLo() {
+    public function latLo()
+    {
         return S1Angle::sradians($this->lat->lo());
     }
 
-    public function latHi() {
+    public function latHi()
+    {
         return S1Angle::sradians($this->lat->hi());
     }
 
-    public function lngLo() {
+    public function lngLo()
+    {
         return S1Angle::sradians($this->lng->lo());
     }
 
-    public function lngHi() {
+    public function lngHi()
+    {
         return S1Angle::sradians($this->lng->hi());
     }
 
@@ -143,18 +156,21 @@ class S2LatLngRect implements S2Region {
 //    return lng;
 //  }
 
-    public function lo() {
+    public function lo()
+    {
         return new S2LatLng($this->latLo(), $this->lngLo());
     }
 
-    public function hi() {
+    public function hi()
+    {
         return new S2LatLng($this->latHi(), $this->lngHi());
     }
 
     /**
      * Return true if the rectangle is empty, i.e. it contains no points at all.
      */
-    public function isEmpty() {
+    public function isEmpty()
+    {
         return $this->lat->isEmpty();
     }
 
@@ -172,7 +188,8 @@ class S2LatLngRect implements S2Region {
 //  }
 
     /** Return the k-th vertex of the rectangle (k = 0,1,2,3) in CCW order. */
-    public function getVertex($k) {
+    public function getVertex($k)
+    {
 //     Return the points in CCW order (SW, SE, NE, NW).
         switch ($k) {
             case 0:
@@ -196,7 +213,8 @@ class S2LatLngRect implements S2Region {
      * Return the center of the rectangle in latitude-longitude space (in general
      * this is not the center of the region on the sphere).
      */
-    public function getCenter() {
+    public function getCenter()
+    {
         return S2LatLng::fromRadians($this->lat->getCenter(), $this->lng->getCenter());
     }
 
@@ -309,7 +327,8 @@ class S2LatLngRect implements S2Region {
      * More efficient version of Contains() that accepts a S2LatLng rather than an
      * S2Point.
      */
-    public function contains($ll) {
+    public function contains($ll)
+    {
         if ($ll instanceof S2LatLng) {
             return ($this->lat->contains($ll->lat()->radians()) && $this->lng->contains($ll->lng()->radians()));
         } else if ($ll instanceof S2LatLngRect) {
@@ -351,7 +370,8 @@ class S2LatLngRect implements S2Region {
 
     /** Return true if this rectangle and the given other rectangle have any
      * points in common. */
-    public function intersects(S2LatLngRect $other) {
+    public function intersects(S2LatLngRect $other)
+    {
         $latInt = $this->lat->intersects($other->lat);
         $lngInt = $this->lng->intersects($other->lng);
 //      echo var_export($latInt, true) . ' ' . var_export($lngInt, true) . "\n";
@@ -460,7 +480,8 @@ class S2LatLngRect implements S2Region {
      * sphere (e.g. 5km), use the ConvolveWithCap() method instead.
      * @return S2LatLngRect
      */
-    public function expanded(S2LatLng $margin) {
+    public function expanded(S2LatLng $margin)
+    {
         // assert (margin.lat().radians() >= 0 && margin.lng().radians() >= 0);
         if ($this->isEmpty()) {
             return $this;
@@ -568,9 +589,9 @@ class S2LatLngRect implements S2Region {
      * public S2Region clone() {
      * return new S2LatLngRect(this.lo(), this.hi());
      * }
-
      */
-    public function getCapBound() {
+    public function getCapBound()
+    {
         // We consider two possible bounding caps, one whose axis passes
         // through the center of the lat-long rectangle and one whose axis
         // is the north or south pole. We return the smaller of the two caps.
@@ -611,7 +632,8 @@ class S2LatLngRect implements S2Region {
         return $poleCap;
     }
 
-    public function getRectBound() {
+    public function getRectBound()
+    {
         return $this;
     }
 
@@ -622,7 +644,8 @@ class S2LatLngRect implements S2Region {
      * intersect the region then it is subdivided, and the accuracy of this method
      * goes up as the cells get smaller.
      */
-    public function mayIntersect(S2Cell $cell) {
+    public function mayIntersect(S2Cell $cell)
+    {
         // This test is cheap but is NOT exact (see s2latlngrect.h).
 
         $rb = $cell->getRectBound();
@@ -705,7 +728,8 @@ class S2LatLngRect implements S2Region {
      *
      * }
      */
-    public function __toString() {
+    public function __toString()
+    {
         return sprintf("[Lo=%s, Hi=%s]", $this->lo(), $this->hi());
     }
 }
