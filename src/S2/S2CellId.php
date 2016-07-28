@@ -2,16 +2,19 @@
 
 namespace S2;
 
-class S2CellId
-{
+class S2CellId {
 
     // Although only 60 bits are needed to represent the index of a leaf
     // cell, we need an extra bit in order to represent the position of
     // the center of the leaf cell along the Hilbert curve.
     const FACE_BITS = 3;
+
     const NUM_FACES = 6;
+
     const MAX_LEVEL = 30; // Valid levels: 0..MAX_LEVEL
+
     const POS_BITS = 61; //2 * MAX_LEVEL + 1;
+
     const MAX_SIZE = 0x40000000; //1 << MAX_LEVEL;
 
     // Constant related to unsigned long's
@@ -40,10 +43,13 @@ class S2CellId
     // define storage causes link errors for any code that tries to take the
     // address of one of these values.
     const LOOKUP_BITS = 4;
+
     const SWAP_MASK = 0x01;
+
     const INVERT_MASK = 0x02;
 
     public static $LOOKUP_POS = null;
+
     public static $LOOKUP_IJ = null;
 
     /**
@@ -75,7 +81,6 @@ class S2CellId
      * public static S2CellId sentinel() {
      * return new S2CellId(MAX_UNSIGNED); // -1
      * }
-     *
      * /**
      * Return a cell given its face (range 0..5), 61-bit Hilbert curve position
      * within that face, and level (range 0..MAX_LEVEL). The given position will
@@ -102,19 +107,26 @@ class S2CellId
         return self::fromFaceIJ($face, $i, $j);
     }
 
-    /** Return the leaf cell containing the given S2LatLng. *#/
-     * public static S2CellId fromLatLng(S2LatLng ll) {
-     * return fromPoint(ll.toPoint());
-     * }
+    /**
+     * Return the leaf cell containing the given S2LatLng.
      *
-     * public S2Point toPoint() {
-     * return S2Point.normalize(toPointRaw());
-     * }
-     *
-     * /**
-     * Return the direction vector corresponding to the center of the given cell.
-     * The vector returned by ToPointRaw is not necessarily unit length.
+     * @param S2LatLng $ll
+     * @return S2CellId
      */
+    public static function fromLatLng(S2LatLng $ll)
+    {
+        return self::fromPoint($ll->toPoint());
+    }
+
+    /*
+    * public S2Point toPoint() {
+    * return S2Point.normalize(toPointRaw());
+    * }
+    *
+    * /**
+    * Return the direction vector corresponding to the center of the given cell.
+    * The vector returned by ToPointRaw is not necessarily unit length.
+    */
     public function toPointRaw()
     {
         // First we compute the discrete (i,j) coordinates of a leaf cell contained
@@ -168,7 +180,6 @@ class S2CellId
      * public boolean isValid() {
      * return face() < NUM_FACES && ((lowestOnBit() & (0x1555555555555555L)) != 0);
      * }
-     *
      * /** Which cube face this cell belongs to, in the range 0..5. */
     public function face()
     {
@@ -247,7 +258,6 @@ class S2CellId
      * public int childPosition(int level) {
      * return (int) (id >>> (2 * (MAX_LEVEL - level) + 1)) & 3;
      * }
-     *
      * // Methods that return the range of cell ids that are contained
      * // within this cell (including itself). The range is *inclusive*
      * // (i.e. test using >= and <=) and the return values of both
@@ -349,8 +359,6 @@ class S2CellId
      * public S2CellId prev() {
      * return new S2CellId(id - (lowestOnBit() << 1));
      * }
-     *
-     *
      * /**
      * Like next(), but wraps around from the last face to the first and vice
      * versa. Should *not* be used for iteration in conjunction with
@@ -363,7 +371,6 @@ class S2CellId
      * }
      * return new S2CellId(n.id - WRAP_OFFSET);
      * }
-     *
      * /**
      * Like prev(), but wraps around from the last face to the first and vice
      * versa. Should *not* be used for iteration in conjunction with
@@ -376,17 +383,12 @@ class S2CellId
      * }
      * return new S2CellId(p.id + WRAP_OFFSET);
      * }
-     *
-     *
      * public static S2CellId begin(int level) {
      * return fromFacePosLevel(0, 0, 0).childBegin(level);
      * }
-     *
      * public static S2CellId end(int level) {
      * return fromFacePosLevel(5, 0, 0).childEnd(level);
      * }
-     *
-     *
      * /**
      * Decodes the cell id from a compact text string suitable for display or
      * indexing. Cells at lower levels (i.e. larger cells) are encoded into
@@ -417,7 +419,6 @@ class S2CellId
      * Encodes the cell id to compact text strings suitable for display or indexing.
      * Cells at lower levels (i.e. larger cells) are encoded into fewer characters.
      * The maximum token length is 16.
-     *
      * Simple implementation: convert the id to hex and strip trailing zeros. We
      * could use base-32 or base-64, but assuming the cells used for indexing
      * regions are at least 100 meters across (level 16 or less), the savings
@@ -429,7 +430,6 @@ class S2CellId
      * if (id == 0) {
      * return "X";
      * }
-     *
      * String hex = Long.toHexString(id).toLowerCase(Locale.ENGLISH);
      * StringBuilder sb = new StringBuilder(16);
      * for (int i = hex.length(); i < 16; i++) {
@@ -441,10 +441,8 @@ class S2CellId
      * return sb.substring(0, len);
      * }
      * }
-     *
      * throw new RuntimeException("Shouldn't make it here");
      * }
-     *
      * /**
      * Returns true if (current * 10) + digit is a number too large to be
      * represented by an unsigned long.  This is useful for detecting overflow
@@ -453,7 +451,6 @@ class S2CellId
      * private static boolean overflowInParse(long current, int digit) {
      * return overflowInParse(current, digit, 10);
      * }
-     *
      * /**
      * Returns true if (current * radix) + digit is a number too large to be
      * represented by an unsigned long.  This is useful for detecting overflow
@@ -472,11 +469,9 @@ class S2CellId
      * // current == maxValueDivs[radix]
      * return (digit > maxValueMods[radix]);
      * }
-     *
      * // current < 0: high bit is set
      * return true;
      * }
-     *
      * // calculated as 0xffffffffffffffff / radix
      * private static final long maxValueDivs[] = {0, 0, // 0 and 1 are invalid
      * 9223372036854775807L, 6148914691236517205L, 4611686018427387903L, // 2-4
@@ -491,26 +486,21 @@ class S2CellId
      * 636094623231363848L, 614891469123651720L, 595056260442243600L, // 29-31
      * 576460752303423487L, 558992244657865200L, 542551296285575047L, // 32-34
      * 527049830677415760L, 512409557603043100L }; // 35-36
-     *
      * // calculated as 0xffffffffffffffff % radix
      * private static final int maxValueMods[] = {0, 0, // 0 and 1 are invalid
      * 1, 0, 3, 0, 3, 1, 7, 6, 5, 4, 3, 2, 1, 0, 15, 0, 15, 16, 15, 15, // 2-21
      * 15, 5, 15, 15, 15, 24, 15, 23, 15, 15, 31, 15, 17, 15, 15 }; // 22-36
-     *
      * /**
      * Return the four cells that are adjacent across the cell's four edges.
      * Neighbors are returned in the order defined by S2Cell::GetEdge. All
      * neighbors are guaranteed to be distinct.
      *#/
      * public void getEdgeNeighbors(S2CellId neighbors[]) {
-     *
      * MutableInteger i = new MutableInteger(0);
      * MutableInteger j = new MutableInteger(0);
-     *
      * int level = this.level();
      * int size = 1 << (MAX_LEVEL - level);
      * int face = toFaceIJOrientation(i, j, null);
-     *
      * // Edges 0, 1, 2, 3 are in the S, E, N, W directions.
      * neighbors[0] = fromFaceIJSame(face, i.intValue(), j.intValue() - size,
      * j.intValue() - size >= 0).parent(level);
@@ -521,13 +511,11 @@ class S2CellId
      * neighbors[3] = fromFaceIJSame(face, i.intValue() - size, j.intValue(),
      * i.intValue() - size >= 0).parent(level);
      * }
-     *
      * /**
      * Return the neighbors of closest vertex to this cell at the given level, by
      * appending them to "output". Normally there are four neighbors, but the
      * closest vertex may only have three neighbors if it is one of the 8 cube
      * vertices.
-     *
      * Requires: level < this.evel(), so that we can determine which vertex is
      * closest (in particular, level == MAX_LEVEL is not allowed).
      */
@@ -576,26 +564,21 @@ class S2CellId
      * X and Y are neighbors if their boundaries intersect but their interiors do
      * not. In particular, two cells that intersect at a single point are
      * neighbors.
-     *
      * Requires: nbr_level >= this->level(). Note that for cells adjacent to a
      * face vertex, the same neighbor may be appended more than once.
      *#/
      * public void getAllNeighbors(int nbrLevel, List<S2CellId> output) {
      * MutableInteger i = new MutableInteger(0);
      * MutableInteger j = new MutableInteger(0);
-     *
      * int face = toFaceIJOrientation(i, j, null);
-     *
      * // Find the coordinates of the lower left-hand leaf cell. We need to
      * // normalize (i,j) to a known position within the cell because nbr_level
      * // may be larger than this cell's level.
      * int size = 1 << (MAX_LEVEL - level());
      * i.setValue(i.intValue() & -size);
      * j.setValue(j.intValue() & -size);
-     *
      * int nbrSize = 1 << (MAX_LEVEL - nbrLevel);
      * // assert (nbrSize <= size);
-     *
      * // We compute the N-S, E-W, and diagonal neighbors in one pass.
      * // The loop test is at the end of the loop to avoid 32-bit overflow.
      * for (int k = -nbrSize;; k += nbrSize) {
@@ -623,10 +606,8 @@ class S2CellId
      * }
      * }
      * }
-     *
      * // ///////////////////////////////////////////////////////////////////
      * // Low-level methods.
-     *
      * /**
      * Return a leaf cell given its cube face (range 0..5) and i- and
      * j-coordinates (see s2.h).
